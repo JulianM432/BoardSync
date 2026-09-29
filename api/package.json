@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node index."
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
@@ -12,15 +15,43 @@
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "version": "12.5.1",
+      "version": "12.6.0",
       "onFail": "download"
     }
   },
-  "packageManager": "pnpm@12.5.1",
+  "prettier": {
+    "semi": true,
+    "singleQuote": false,
+    "trailingComma": "all",
+    "printWidth": 80,
+    "tabWidth": 2,
+    "useTabs": false,
+    "bracketSpacing": true,
+    "arrowParens": "always",
+    "endOfLine": "lf"
+  },
+  "packageManager": "pnpm@12.6.0",
   "type": "module",
   "devDependencies": {
-    "@types/node": "^26.6.2",
-    "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
+    "@types/bcrypt": "6.0.0",
+    "@types/cookie-parser": "1.4.10",
+    "@types/cors": "2.8.19",
+    "@types/express": "5.0.6",
+    "@types/jsonwebtoken": "9.0.10",
+    "@types/node": "26.6.2",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2"
+  },
+  "dependencies": {
+    "bcrypt": "6.0.0",
+    "cookie-parser": "1.4.7",
+    "cors": "2.8.6",
+    "dotenv": "18.0.4",
+    "express": "5.2.1",
+    "jsonwebtoken": "9.0.3",
+    "mongoose": "9.10.2",
+    "path-to-regexp": "8.4.2",
+    "socket.io": "4.8.4",
+    "zod": "4.6.5"
   }
 }
