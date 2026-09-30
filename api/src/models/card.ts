@@ -31,5 +31,6 @@ const cardSchema = new Schema<ICard>(
 );
 
 cardSchema.index({ columnId: 1, position: 1 });
+cardSchema.index({ boardId: 1, columnId: 1 }, { unique: true });
 
 export const CardModel = model<ICard>("Card", cardSchema);
