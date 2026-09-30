@@ -1,26 +1,22 @@
-import { IBoard, MemberRole } from "../models/board.js";
-import { Types } from "mongoose";
+import type { Types } from "mongoose";
+import type { IBoard, MemberRole } from "../models/board.js";
 
 export type BoardRole = "owner" | MemberRole;
+export type BoardPermission =
+  "board:read" | "card:write" | "column:manage" | "board:manage_members";
 
-export const PERMISSIONS = {
+const permissions: Record<BoardPermission, readonly BoardRole[]> = {
   "board:read": ["owner", "editor", "viewer"],
-  "card:create": ["owner", "editor"],
-  "card:update": ["owner", "editor"],
-  "card:move": ["owner", "editor"],
-  "card:delete": ["owner", "editor"],
+  "card:write": ["owner", "editor"],
   "column:manage": ["owner"],
   "board:manage_members": ["owner"],
-  "board:delete": ["owner"],
-} as const satisfies Record<string, readonly BoardRole[]>;
+};
 
-export type Permission = keyof typeof PERMISSIONS;
-
-export function can(role: BoardRole | null, permission: Permission): boolean {
-  return (
-    role !== null &&
-    (PERMISSIONS[permission] as readonly BoardRole[]).includes(role)
-  );
+export function can(
+  role: BoardRole | null,
+  permission: BoardPermission,
+): boolean {
+  return role !== null && permissions[permission].includes(role);
 }
 
 export function getBoardRole(
@@ -28,5 +24,7 @@ export function getBoardRole(
   userId: Types.ObjectId | string,
 ): BoardRole | null {
   if (board.ownerId.equals(userId)) return "owner";
-  return board.members.find((m) => m.userId.equals(userId))?.role ?? null;
+  return (
+    board.members.find((member) => member.userId.equals(userId))?.role ?? null
+  );
 }
