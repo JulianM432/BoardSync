@@ -25,6 +25,18 @@ export const accessRules: readonly AccessRule[] = [
   { method: "POST", path: "/api/boards", roles: ["admin"] },
   { method: "PATCH", path: "/api/boards/:id", roles: ["admin"] },
   { method: "DELETE", path: "/api/boards/:id", roles: ["admin"] },
+  // Columns
+  { method: "GET", path: "/api/boards/:boardId/columns" },
+  { method: "GET", path: "/api/boards/:boardId/columns/:id" },
+  { method: "POST", path: "/api/boards/:boardId/columns" },
+  { method: "PATCH", path: "/api/boards/:boardId/columns/:id" },
+  { method: "DELETE", path: "/api/boards/:boardId/columns/:id" },
+  // Cards
+  { method: "GET", path: "/api/boards/:boardId/cards" },
+  { method: "GET", path: "/api/boards/:boardId/cards/:id" },
+  { method: "POST", path: "/api/boards/:boardId/cards" },
+  { method: "PATCH", path: "/api/boards/:boardId/cards/:id" },
+  { method: "DELETE", path: "/api/boards/:boardId/cards/:id" },
   // Users
   { method: "GET", path: "/api/users/me" },
   { method: "GET", path: "/api/users", roles: ["admin"] },
