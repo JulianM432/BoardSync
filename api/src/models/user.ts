@@ -1,7 +1,7 @@
 import { Schema, model, type HydratedDocument } from "mongoose";
 import { type Role, ROLES } from "../config/permissions.js";
 
-interface IUser {
+export interface IUser {
   username: string;
   email: string;
   password: string;
