@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { UsersService } from "../services/users.js";
 import { AppError } from "../utils/AppError.js";
+import { requireUser } from "../utils/requireUser.js";
 
 export const UsersController = {
   getAll: async (req: Request, res: Response) => {
@@ -31,10 +32,7 @@ export const UsersController = {
   },
   getOwnData: async (req: Request, res: Response) => {
     try {
-      if (!req.user) {
-        return res.status(401).json({ message: "No autorizado" });
-      }
-      const user = await UsersService.getOwnData(req.user.id);
+      const user = await UsersService.getOwnData(requireUser(req).id);
       return res.status(200).json(user);
     } catch (error) {
       if (error instanceof AppError) {

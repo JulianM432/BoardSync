@@ -3,16 +3,14 @@ import { BoardService } from "../services/board.js";
 import { AppError } from "../utils/AppError.js";
 import { getBoardsSchema } from "../schemas/board.js";
 import { ZodError } from "zod";
+import { requireUser } from "../utils/requireUser.js";
 
 export const BoardController = {
   createBoard: async (req: Request, res: Response) => {
     try {
-      if (!req.user) {
-        return res.status(401).json({ message: "No autorizado" });
-      }
       const board = await BoardService.createBoard({
         ...req.body,
-        ownerId: req.user.id,
+        ownerId: requireUser(req).id,
       });
       return res.status(201).json(board);
     } catch (error) {
