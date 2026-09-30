@@ -25,5 +25,6 @@ const columnSchema = new Schema<IColumn>(
 );
 
 columnSchema.index({ boardId: 1, position: 1 });
+columnSchema.index({ boardId: 1, name: 1 }, { unique: true });
 
 export const ColumnModel = model<IColumn>("Column", columnSchema);
