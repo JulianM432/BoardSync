@@ -11,6 +11,7 @@ import type {
 } from "../schemas/board.js";
 import { AppError } from "../utils/AppError.js";
 import { escapeRegex } from "../utils/escapeRegex.js";
+
 type BoardLean = IBoard & { _id: Types.ObjectId };
 
 export const BoardService = {
