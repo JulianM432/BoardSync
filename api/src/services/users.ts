@@ -1,6 +1,13 @@
 import { UserDocument, UserModel } from "../models/user.js";
 import { AppError } from "../utils/AppError.js";
 
+export type User = {
+  id: string;
+  username: string;
+  email: string;
+  role: string;
+};
+
 export const UsersService = {
   getAll: async (): Promise<UserDocument[]> => {
     const users = await UserModel.find().select("username email role");
@@ -14,9 +21,7 @@ export const UsersService = {
     return user;
   },
   getOwnData: async (id: string): Promise<UserDocument> => {
-    const user = await UserModel.findById(id).select(
-      "username email role",
-    );
+    const user = await UserModel.findById(id).select("username email role");
     if (!user) {
       throw new AppError(404, "Usuario no encontrado");
     }

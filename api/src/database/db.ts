@@ -5,7 +5,7 @@ export const connectDb = async (): Promise<void> => {
   try {
     await mongoose.connect(env.MONGO_URI);
     console.log("Conectado a MongoDB");
-    
+
     mongoose.connection.on("connected", () => {
       console.log("MongoDB conectado");
     });

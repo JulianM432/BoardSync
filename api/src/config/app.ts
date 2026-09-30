@@ -12,7 +12,7 @@ export const createApp = (): Express => {
   app.use(cookieParser());
   app.use(middlewares);
 
-  app.use("/api",router);
+  app.use("/api", router);
 
   return app;
 };

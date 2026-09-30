@@ -13,7 +13,7 @@ export const AuthController = {
         sameSite: env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 43200000, // 12 hours
       });
-      return res.status(200).json(response.user); 
+      return res.status(200).json(response.user);
     } catch (error) {
       if (error instanceof AppError) {
         return res

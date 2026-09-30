@@ -15,7 +15,12 @@ const baseBoardSchema = z.object({
   members: z.array(memberSchema),
 });
 
-export const createBoardSchema = baseBoardSchema;
+export const createBoardSchema = z
+  .object({
+    name: z.string().trim().min(3).max(200),
+    members: z.array(memberSchema).default([]),
+  })
+  .strict();
 
 export const updateBoardSchema = baseBoardSchema
   .partial()
