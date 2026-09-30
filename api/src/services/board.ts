@@ -1,4 +1,4 @@
-import type { QueryFilter, Types } from "mongoose";
+import { QueryFilter, Types, mongo } from "mongoose";
 import {
   type BoardDocument,
   type IBoard,
@@ -11,13 +11,19 @@ import type {
 } from "../schemas/board.js";
 import { AppError } from "../utils/AppError.js";
 import { escapeRegex } from "../utils/escapeRegex.js";
-
 type BoardLean = IBoard & { _id: Types.ObjectId };
 
 export const BoardService = {
   createBoard: async (input: CreateBoardInput): Promise<BoardDocument> => {
-    const board = await BoardModel.create(input);
-    return board;
+    try {
+      const board = await BoardModel.create(input);
+      return board;
+    } catch (error) {
+      if (error instanceof mongo.MongoServerError && error.code === 11000) {
+        throw new AppError(409, "Ya existe este nombre");
+      }
+      throw error;
+    }
   },
   getBoards: async ({ name, ownerId }: BoardFilters): Promise<BoardLean[]> => {
     const query: QueryFilter<IBoard> = {};
