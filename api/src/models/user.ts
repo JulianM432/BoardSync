@@ -1,12 +1,14 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, type HydratedDocument } from "mongoose";
 import { type Role, ROLES } from "../config/permissions.js";
 
-interface IUser extends Document {
+interface IUser {
   username: string;
   email: string;
   password: string;
   role: Role;
 }
+
+export type UserDocument = HydratedDocument<IUser>;
 
 const userSchema = new Schema<IUser>({
   username: { type: String, required: true, unique: true },
