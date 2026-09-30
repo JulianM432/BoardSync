@@ -3,18 +3,7 @@ import { signToken } from "../utils/jwt.js";
 import { UserModel } from "../models/user.js";
 import { AppError } from "../utils/AppError.js";
 import { User } from "./users.js";
-
-interface LoginInput {
-  email: string;
-  password: string;
-}
-
-interface RegisterInput {
-  username: string;
-  email: string;
-  password: string;
-}
-
+import type { LoginInput, RegisterInput } from "../schemas/auth.js";
 
 interface AuthResult {
   token: string;
