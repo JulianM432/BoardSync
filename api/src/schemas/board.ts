@@ -10,16 +10,19 @@ const memberSchema = z.object({
   role: z.enum(MEMBER_ROLES),
 });
 
-
-export const createBoardSchema = z.object({
+const baseBoardSchema = z.object({
   name: z.string().trim().min(3).max(200),
   members: z.array(memberSchema),
 });
 
-export const updateBoardSchema = z.object({
-  name: z.string().trim().min(3).max(200).optional(),
-  members: z.array(memberSchema).optional(),
-});
+export const createBoardSchema = baseBoardSchema;
+
+export const updateBoardSchema = baseBoardSchema
+  .partial()
+  .strict()
+  .refine((data) => Object.keys(data).length > 0, {
+    message: "Debes enviar al menos un campo",
+  });
 
 export const getBoardsSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
