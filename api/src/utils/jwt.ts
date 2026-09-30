@@ -10,7 +10,8 @@ export interface AuthUser {
 export const signToken = (user: AuthUser) =>
   jwt.sign({ role: user.role }, env.JWT_SECRET, {
     subject: user.id,
-    expiresIn: "15m",
+    expiresIn: env.JWT_EXPIRES_IN,
+    algorithm: "HS256",
   });
 
 export const verifyToken = (token: string): AuthUser => {
