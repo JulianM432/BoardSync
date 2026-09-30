@@ -26,5 +26,8 @@ export const accessRules: readonly AccessRule[] = [
   { method: "PATCH", path: "/api/boards/:id", roles: ["admin"] },
   { method: "DELETE", path: "/api/boards/:id", roles: ["admin"] },
   // Users
-  { method: "GET", path: "/api/admin/users", roles: ["admin"] },
+  { method: "GET", path: "/api/users/me" },
+  { method: "GET", path: "/api/users", roles: ["admin"] },
+  { method: "GET", path: "/api/users/:id", roles: ["admin"] },
+  { method: "DELETE", path: "/api/users/:id", roles: ["admin"] },
 ];
