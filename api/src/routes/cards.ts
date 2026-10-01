@@ -17,3 +17,4 @@ cardsRouter.patch(
   CardController.updateCard,
 );
 cardsRouter.delete("/:id", CardController.deleteCard);
+cardsRouter.patch("/:id/move", CardController.moveCard);

@@ -89,4 +89,17 @@ export const CardController = {
       return sendError(res, error);
     }
   },
+  moveCard: async (req: Request<{ boardId: string; id: string }>, res: Response) => {
+    try {
+      const response = await CardService.moveCard(
+        req.params.boardId,
+        req.params.id,
+        req.body,
+        requireUser(req),
+      );
+      return res.status(200).json(response);
+    } catch (error) {
+      return sendError(res, error);
+    }
+  },
 };

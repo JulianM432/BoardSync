@@ -6,7 +6,7 @@ export interface ICard {
   boardId: Types.ObjectId;
   columnId: Types.ObjectId;
   createdBy: Types.ObjectId;
-  position: number;
+  position: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,12 +25,13 @@ const cardSchema = new Schema<ICard>(
     },
     columnId: { type: Schema.Types.ObjectId, ref: "Column", required: true },
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    position: { type: Number, required: true },
+    position: { type: String, required: true },
   },
   { timestamps: true },
 );
 
 cardSchema.index({ columnId: 1, position: 1 });
-cardSchema.index({ boardId: 1, columnId: 1 }, { unique: true });
+cardSchema.index({ boardId: 1, columnId: 1, position: 1 });
+cardSchema.index({ boardId: 1, columnId: 1, title: 1 }, { unique: true });
 
 export const CardModel = model<ICard>("Card", cardSchema);

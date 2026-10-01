@@ -37,6 +37,7 @@ export const accessRules: readonly AccessRule[] = [
   { method: "POST", path: "/api/boards/:boardId/cards" },
   { method: "PATCH", path: "/api/boards/:boardId/cards/:id" },
   { method: "DELETE", path: "/api/boards/:boardId/cards/:id" },
+  { method: "PATCH", path: "/api/boards/:boardId/cards/:id/move" },
   // Users
   { method: "GET", path: "/api/users/me" },
   { method: "GET", path: "/api/users", roles: ["admin"] },
