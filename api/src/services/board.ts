@@ -11,6 +11,7 @@ import type {
 } from "../schemas/board.js";
 import { AppError } from "../utils/AppError.js";
 import { escapeRegex } from "../utils/escapeRegex.js";
+import type { AuthUser } from "../utils/jwt.js";
 
 type BoardLean = IBoard & { _id: Types.ObjectId };
 
@@ -26,13 +27,12 @@ export const BoardService = {
       throw error;
     }
   },
-  getBoards: async ({ name, ownerId }: BoardFilters): Promise<BoardLean[]> => {
-    const query: QueryFilter<IBoard> = {};
+  getBoards: async ({ name }: BoardFilters, user: AuthUser): Promise<BoardLean[]> => {
+    const query: QueryFilter<IBoard> = {
+      $or: [{ ownerId: user.id }, { "members.userId": user.id }],
+    };
     if (name) {
       query.name = { $regex: escapeRegex(name), $options: "i" };
-    }
-    if (ownerId) {
-      query.ownerId = ownerId;
     }
     const boards = await BoardModel.find(query)
       .select("name ownerId members createdAt updatedAt")

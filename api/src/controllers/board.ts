@@ -25,7 +25,7 @@ export const BoardController = {
   getBoards: async (req: Request, res: Response) => {
     try {
       const filters = getBoardsSchema.parse(req.query);
-      const boards = await BoardService.getBoards(filters);
+      const boards = await BoardService.getBoards(filters, requireUser(req));
       return res.status(200).json(boards);
     } catch (error) {
       if (error instanceof ZodError) {
