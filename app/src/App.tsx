@@ -1,5 +1,5 @@
 import { ThemeProvider } from "./components/theme-provider";
-import { AuthProvider, useAuth } from "./contexts/AuthProvider";
+import { AuthProvider, useAuth } from "./features/auth/contexts/AuthProvider";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
 
