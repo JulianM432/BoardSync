@@ -1,5 +1,5 @@
-import { Login } from "@/components/auth/Login";
-import { useAuth } from "@/contexts/AuthProvider";
+import { Login } from "@/features/auth/components/Login";
+import { useAuth } from "@/features/auth/contexts/AuthProvider";
 import type { LoginCredentials } from "@/schemas/auth";
 import { useState } from "react";
 

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldGroup, FieldLabel, Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "../ui/spinner";
+import { Spinner } from "../../../components/ui/spinner";
 
 type LoginFormProps = {
   onSubmit: (input: LoginCredentials) => void;
@@ -68,12 +68,18 @@ export const Login = ({
                   />
                   <button
                     type="button"
-                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    aria-label={
+                      showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                    }
                     aria-pressed={showPassword}
                     onClick={() => setShowPassword((visible) => !visible)}
                     className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
-                    {showPassword ? <EyeOff aria-hidden="true" size={16} /> : <Eye aria-hidden="true" size={16} />}
+                    {showPassword ? (
+                      <EyeOff aria-hidden="true" size={16} />
+                    ) : (
+                      <Eye aria-hidden="true" size={16} />
+                    )}
                   </button>
                 </div>
               </Field>
