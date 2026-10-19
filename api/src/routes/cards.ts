@@ -1,7 +1,11 @@
 import { Router } from "express";
 import { CardController } from "../controllers/card.js";
 import { validateSchema } from "../middlewares/validate.js";
-import { createCardSchema, updateCardSchema } from "../schemas/card.js";
+import {
+  createCardSchema,
+  moveCardSchema,
+  updateCardSchema,
+} from "../schemas/card.js";
 
 export const cardsRouter = Router({ mergeParams: true });
 cardsRouter.get("/", CardController.getCards);
@@ -17,4 +21,8 @@ cardsRouter.patch(
   CardController.updateCard,
 );
 cardsRouter.delete("/:id", CardController.deleteCard);
-cardsRouter.patch("/:id/move", CardController.moveCard);
+cardsRouter.patch(
+  "/:id/move",
+  validateSchema(moveCardSchema),
+  CardController.moveCard,
+);

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
@@ -27,28 +27,22 @@ export const HomePage = ({ user, onLogout }: HomeProps) => {
   const [loadingBoard, setLoadingBoard] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadBoards = useCallback(async () => {
+  const loadBoards = async () => {
     setLoadingBoards(true);
     setError(null);
     try {
       const result = await boardApi.getBoards();
-      const nextBoards = result as BoardSummary[];
-      setBoards(nextBoards);
-      setActiveBoardId((current) =>
-        current && nextBoards.some((board) => board._id === current)
-          ? current
-          : (nextBoards[0]?._id ?? null),
-      );
+      setBoards(result);
     } catch {
       setError("No se pudieron cargar los boards.");
     } finally {
       setLoadingBoards(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
-    void loadBoards();
-  }, [loadBoards]);
+     loadBoards();
+  }, []);
 
   useEffect(() => {
     if (!activeBoardId) {
@@ -92,7 +86,9 @@ export const HomePage = ({ user, onLogout }: HomeProps) => {
         boards={boards}
         activeBoardId={activeBoardId}
         onSelectBoard={setActiveBoardId}
-        onCreateBoard={() => setError("La creación de boards todavía no está implementada.")}
+        onCreateBoard={() =>
+          setError("La creación de boards todavía no está implementada.")
+        }
         user={user}
         onLogout={onLogout}
       />
@@ -101,11 +97,15 @@ export const HomePage = ({ user, onLogout }: HomeProps) => {
           <SidebarTrigger />
           <Separator orientation="vertical" className="h-4" />
           <h1 className="truncate text-sm font-semibold">
-            {activeBoard?.name ?? (loadingBoards ? "Cargando boards…" : "Sin board seleccionado")}
+            {activeBoard?.name ??
+              (loadingBoards ? "Cargando boards…" : "Sin board seleccionado")}
           </h1>
         </header>
         {error && (
-          <p role="alert" className="border-b px-4 py-2 text-sm text-destructive">
+          <p
+            role="alert"
+            className="border-b px-4 py-2 text-sm text-destructive"
+          >
             {error}
           </p>
         )}
@@ -116,7 +116,9 @@ export const HomePage = ({ user, onLogout }: HomeProps) => {
             <Board columns={columns} cards={cards} />
           ) : (
             <p className="p-4 text-sm text-muted-foreground">
-              {loadingBoards ? "Cargando boards…" : "Creá o seleccioná un board para empezar."}
+              {loadingBoards
+                ? "Cargando boards…"
+                : "Creá o seleccioná un board para empezar."}
             </p>
           )}
         </div>
