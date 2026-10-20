@@ -1,6 +1,7 @@
 import { Login } from "@/features/auth/components/Login";
-import { useAuth } from "@/features/auth/contexts/AuthProvider";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import type { LoginCredentials } from "@/schemas/auth";
+import { getApiErrorMessage } from "@/lib/axios-config";
 import { useState } from "react";
 
 export const LoginPage = () => {
@@ -14,7 +15,7 @@ export const LoginPage = () => {
     try {
       await login(input);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error inesperado");
+      setError(getApiErrorMessage(err, "Error inesperado"));
     } finally {
       setIsLoading(false);
     }

@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "../../../components/ui/spinner";
 
 type LoginFormProps = {
-  onSubmit: (input: LoginCredentials) => void;
+  // Debe manejar sus propios errores (se dispara con `void`)
+  onSubmit: (input: LoginCredentials) => Promise<void>;
   isSubmitting?: boolean;
   error?: string | null;
 };
@@ -30,7 +31,7 @@ export const Login = ({
 
   const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onSubmit(form);
+    void onSubmit(form);
   };
 
   return (

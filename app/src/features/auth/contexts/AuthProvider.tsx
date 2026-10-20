@@ -1,49 +1,50 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { authAPI } from "@/features/auth/api/auth";
-import type { LoginCredentials, User } from "@/schemas/auth";
 import { usersAPI } from "@/features/auth/api/users";
-
-type AuthContextValue = {
-  user: User | null;
-  login: (input: LoginCredentials) => Promise<void>;
-  logout: () => void;
-};
-
-const AuthContext = createContext<AuthContextValue | null>(null);
+import {
+  AuthContext,
+  type AuthStatus,
+} from "@/features/auth/contexts/auth-context";
+import type { LoginCredentials, User } from "@/schemas/auth";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [status, setStatus] = useState<AuthStatus>("loading");
 
   useEffect(() => {
-    checkUserStatus();
+    const checkUserStatus = async () => {
+      try {
+        const data = await usersAPI.me();
+        setUser(data);
+        setStatus("authenticated");
+      } catch {
+        setUser(null);
+        setStatus("anonymous");
+      }
+    };
+    // `void`: checkUserStatus ya maneja sus errores
+    void checkUserStatus();
   }, []);
-
-  const checkUserStatus = async () => {
-    const data = await usersAPI.me();
-    setUser(data);
-  };
 
   const login = async (input: LoginCredentials) => {
     const userData = await authAPI.login(input);
     setUser(userData);
+    setStatus("authenticated");
   };
-  const logout = async () => setUser(null);
+
+  const logout = async () => {
+    try {
+      await authAPI.logout();
+    } catch {
+      // Si falla el server, la sesión local se cierra igual
+    }
+    setUser(null);
+    setStatus("anonymous");
+  };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, status, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth debe usarse dentro de <AuthProvider>");
-  return context;
 }
