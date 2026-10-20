@@ -6,14 +6,16 @@ import { cardQuerySchema } from "../schemas/card.js";
 import { requireUser } from "../utils/requireUser.js";
 
 function sendError(res: Response, error: unknown) {
-  if (error instanceof AppError)
+  if (error instanceof AppError) {
     return res
       .status(error.status)
       .json({ message: error.message, code: error.code });
-  if (error instanceof ZodError)
+  }
+  if (error instanceof ZodError) {
     return res
       .status(400)
       .json({ message: "Query invalido", errors: error.issues });
+  }
   return res.status(500).json({ message: "Error interno" });
 }
 

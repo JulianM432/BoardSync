@@ -1,10 +1,10 @@
 import { generateKeyBetween } from "fractional-indexing";
 import { Types } from "mongoose";
-import { BoardModel } from "../models/board.js";
 import { CardModel } from "../models/card.js";
 import { ColumnModel } from "../models/column.js";
 import type { AuthUser } from "../utils/jwt.js";
 import { AppError } from "../utils/AppError.js";
+import { requireBoardRole } from "../utils/requireBoardRole.js";
 import { can, getBoardRole } from "../config/board-permissions.js";
 import type {
   CreateCardInput,
@@ -12,19 +12,30 @@ import type {
   UpdateCardInput,
 } from "../schemas/card.js";
 
+type UserRef = { _id: Types.ObjectId; username: string };
+
+// Tipos de los paths poblados por CARD_POPULATE, para `populate<T>()`
+type PopulatedCardPaths = {
+  createdBy: UserRef;
+  assignedTo: UserRef | null;
+};
+
+const CARD_POPULATE = [
+  { path: "createdBy", select: "username" },
+  { path: "assignedTo", select: "username" },
+];
+
 async function getBoardRoleForUser(boardId: string, user: AuthUser) {
-  if (!Types.ObjectId.isValid(boardId)) {
-    throw new AppError(400, "boardId invalid");
+  return requireBoardRole(boardId, user);
+}
+
+function assertAssignable(
+  board: Parameters<typeof getBoardRole>[0],
+  assignedTo: string | null | undefined,
+) {
+  if (typeof assignedTo === "string" && !getBoardRole(board, assignedTo)) {
+    throw new AppError(400, "El usuario asignado no es miembro del board");
   }
-  const board = await BoardModel.findById(boardId).select("ownerId members");
-  if (!board) {
-    throw new AppError(404, "Board not found");
-  }
-  const role = getBoardRole(board, user.id);
-  if (!role) {
-    throw new AppError(403, "Forbidden");
-  }
-  return role;
 }
 
 function validateCardId(id: string) {
@@ -39,25 +50,36 @@ export const CardService = {
     columnId: string | undefined,
     user: AuthUser,
   ) => {
-    const role = await getBoardRoleForUser(boardId, user);
-    if (!can(role, "board:read")) throw new AppError(403, "Forbidden");
+    const { role } = await getBoardRoleForUser(boardId, user);
+    if (!can(role, "board:read")) {
+      throw new AppError(403, "Forbidden");
+    }
     if (columnId) {
       const column = await ColumnModel.findOne({
         _id: columnId,
         boardId,
       }).select("_id");
-      if (!column) throw new AppError(404, "Column not found");
+      if (!column) {
+        throw new AppError(404, "Column not found");
+      }
     }
     return CardModel.find({ boardId, ...(columnId ? { columnId } : {}) })
       .sort({ columnId: 1, position: 1, _id: 1 })
+      .populate<PopulatedCardPaths>(CARD_POPULATE)
       .lean();
   },
   getCard: async (boardId: string, id: string, user: AuthUser) => {
-    const role = await getBoardRoleForUser(boardId, user);
-    if (!can(role, "board:read")) throw new AppError(403, "Forbidden");
+    const { role } = await getBoardRoleForUser(boardId, user);
+    if (!can(role, "board:read")) {
+      throw new AppError(403, "Forbidden");
+    }
     validateCardId(id);
-    const card = await CardModel.findOne({ _id: id, boardId }).lean();
-    if (!card) throw new AppError(404, "Card not found");
+    const card = await CardModel.findOne({ _id: id, boardId })
+      .populate<PopulatedCardPaths>(CARD_POPULATE)
+      .lean();
+    if (!card) {
+      throw new AppError(404, "Card not found");
+    }
     return card;
   },
   createCard: async (
@@ -65,7 +87,7 @@ export const CardService = {
     input: CreateCardInput,
     user: AuthUser,
   ) => {
-    const role = await getBoardRoleForUser(boardId, user);
+    const { board, role } = await getBoardRoleForUser(boardId, user);
     if (!can(role, "card:write")) {
       throw new AppError(403, "Forbidden");
     }
@@ -79,13 +101,16 @@ export const CardService = {
       .select("position")
       .lean();
 
-    return CardModel.create({
+    assertAssignable(board, input.assignedTo);
+
+    const card = await CardModel.create({
       ...input,
       description: input.description ?? "",
       boardId,
       createdBy: user.id,
       position: generateKeyBetween(last?.position ?? null, null),
     });
+    return card.populate<PopulatedCardPaths>(CARD_POPULATE);
   },
   updateCard: async (
     boardId: string,
@@ -93,7 +118,7 @@ export const CardService = {
     input: UpdateCardInput,
     user: AuthUser,
   ) => {
-    const role = await getBoardRoleForUser(boardId, user);
+    const { board, role } = await getBoardRoleForUser(boardId, user);
     if (!can(role, "card:write")) {
       throw new AppError(403, "Forbidden");
     }
@@ -108,15 +133,21 @@ export const CardService = {
     if (input.description !== undefined) {
       card.description = input.description;
     }
+    if (input.assignedTo !== undefined) {
+      assertAssignable(board, input.assignedTo);
+      card.assignedTo = input.assignedTo
+        ? new Types.ObjectId(input.assignedTo)
+        : null;
+    }
     await card.save();
-    return card;
+    return card.populate<PopulatedCardPaths>(CARD_POPULATE);
   },
   deleteCard: async (
     boardId: string,
     id: string,
     user: AuthUser,
   ): Promise<void> => {
-    const role = await getBoardRoleForUser(boardId, user);
+    const { role } = await getBoardRoleForUser(boardId, user);
     if (!can(role, "card:write")) {
       throw new AppError(403, "Forbidden");
     }
@@ -132,7 +163,7 @@ export const CardService = {
     input: MoveCardInput,
     user: AuthUser,
   ) => {
-    const role = await getBoardRoleForUser(boardId, user);
+    const { role } = await getBoardRoleForUser(boardId, user);
     if (!can(role, "card:write")) {
       throw new AppError(403, "Forbidden");
     }
@@ -183,7 +214,7 @@ export const CardService = {
         ...siblingCards,
         position: { $gt: prev.position },
       })
-        .sort({ position: -1, _id: 1 })
+        .sort({ position: 1, _id: 1 })
         .select("position")
         .lean();
       upper = after?.position ?? null;
@@ -192,7 +223,7 @@ export const CardService = {
         ...siblingCards,
         position: { $lt: next.position },
       })
-        .sort({ position: 1, _id: -1 })
+        .sort({ position: -1, _id: -1 })
         .select("position")
         .lean();
       lower = before?.position ?? null;
@@ -210,6 +241,6 @@ export const CardService = {
     card.position = generateKeyBetween(lower, upper);
     card.columnId = new Types.ObjectId(columnId);
     await card.save();
-    return card;
+    return card.populate<PopulatedCardPaths>(CARD_POPULATE);
   },
 };

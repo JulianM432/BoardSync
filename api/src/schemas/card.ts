@@ -1,19 +1,18 @@
 import { z } from "zod";
-import { Types } from "mongoose";
-
-const objectId = (field: string) =>
-  z.string().refine((v) => Types.ObjectId.isValid(v), `${field} invalid`);
+import { objectId } from "./common.js";
 
 export const createCardSchema = z.object({
   title: z.string().trim().min(1).max(200),
   description: z.string().trim().optional(),
   columnId: objectId("columnId"),
+  assignedTo: objectId("assignedTo").nullish(),
 });
 
 export const updateCardSchema = z
   .object({
     title: z.string().trim().min(1).max(200).optional(),
     description: z.string().trim().optional(),
+    assignedTo: objectId("assignedTo").nullish(),
   })
   .strict()
   .refine((data) => Object.keys(data).length > 0, {

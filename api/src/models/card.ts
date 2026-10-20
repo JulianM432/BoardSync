@@ -6,6 +6,7 @@ export interface ICard {
   boardId: Types.ObjectId;
   columnId: Types.ObjectId;
   createdBy: Types.ObjectId;
+  assignedTo: Types.ObjectId | null;
   position: string;
   createdAt: Date;
   updatedAt: Date;
@@ -25,6 +26,7 @@ const cardSchema = new Schema<ICard>(
     },
     columnId: { type: Schema.Types.ObjectId, ref: "Column", required: true },
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    assignedTo: { type: Schema.Types.ObjectId, ref: "User", default: null },
     position: { type: String, required: true },
   },
   { timestamps: true },
