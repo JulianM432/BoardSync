@@ -6,6 +6,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useLogout } from "@/features/auth/hooks/useLogout";
 import { boardQueries } from "@/features/boards/api/queries";
 import { BoardFormDialog } from "@/features/boards/components/BoardFormDialog";
+import { useRealtimeConnection } from "@/features/boards/hooks/useRealtimeConnection";
 
 const authenticatedRoute = getRouteApi("/_authenticated");
 
@@ -13,6 +14,7 @@ export const AuthenticatedLayout = () => {
   const { user } = authenticatedRoute.useRouteContext();
   const { data: boards } = useSuspenseQuery(boardQueries.list());
   const logout = useLogout();
+  useRealtimeConnection();
   const [isCreateBoardOpen, setIsCreateBoardOpen] = useState(false);
   const canCreateBoards = user.role === "admin";
 

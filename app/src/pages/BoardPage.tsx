@@ -5,6 +5,7 @@ import { boardQueries } from "@/features/boards/api/queries";
 import { Board } from "@/features/boards/components/Board";
 import { BoardActions } from "@/features/boards/components/BoardActions";
 import { RoleBadge } from "@/features/boards/components/RoleBadge";
+import { useBoardRealtime } from "@/features/boards/hooks/useBoardRealtime";
 import { useBoardRole } from "@/features/boards/hooks/useBoardRole";
 import { getBoardUsers } from "@/features/boards/permissions";
 
@@ -21,6 +22,7 @@ export const BoardPage = () => {
       ],
     });
   const { role, can } = useBoardRole(board);
+  useBoardRealtime(boardId);
 
   return (
     <>
