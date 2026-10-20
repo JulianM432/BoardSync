@@ -12,8 +12,8 @@ export const initSockets = (httpServer: HttpServer) => {
   });
 
   io.use((socket, next) => {
-    const token = socket.handshake.auth.token as string | undefined;
-    if (!token) {
+    const token: unknown = socket.handshake.auth.token;
+    if (typeof token !== "string" || token === "") {
       return next(new Error("No token provided"));
     }
     try {

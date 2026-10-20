@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
+import { z } from "zod";
 import { env } from "../config/env.js";
-import type { Role } from "../config/permissions.js";
+import { ROLES, type Role } from "../config/permissions.js";
 
 export interface AuthUser {
   id: string;
@@ -14,9 +15,13 @@ export const signToken = (user: AuthUser) =>
     algorithm: "HS256",
   });
 
+// Validamos el payload en runtime en vez de castearlo
+const tokenPayloadSchema = z.object({
+  sub: z.string(),
+  role: z.enum(ROLES),
+});
+
 export const verifyToken = (token: string): AuthUser => {
-  const payload = jwt.verify(token, env.JWT_SECRET) as jwt.JwtPayload & {
-    role: Role;
-  };
-  return { id: payload.sub as string, role: payload.role };
+  const payload = tokenPayloadSchema.parse(jwt.verify(token, env.JWT_SECRET));
+  return { id: payload.sub, role: payload.role };
 };

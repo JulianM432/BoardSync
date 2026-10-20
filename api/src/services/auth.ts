@@ -14,10 +14,12 @@ export const AuthService = {
   login: async (input: LoginInput): Promise<AuthResult> => {
     const user = await UserModel.findOne({ email: input.email });
     if (!user) {
-      throw new AppError(404, "Usuario no encontrado", "USER_NOT_FOUND");
+      throw new AppError(401, "Credenciales inválidas");
     }
     const isValidPassword = await bcrypt.compare(input.password, user.password);
-    if (!isValidPassword) throw new AppError(401, "Contraseña incorrecta");
+    if (!isValidPassword) {
+      throw new AppError(401, "Credenciales inválidas");
+    }
     const token = signToken({ id: user.id, role: user.role });
     return {
       token,

@@ -20,12 +20,17 @@ export const UsersService = {
     }
     return user;
   },
-  getOwnData: async (id: string): Promise<UserDocument> => {
+  getOwnData: async (id: string): Promise<User> => {
     const user = await UserModel.findById(id).select("username email role");
     if (!user) {
       throw new AppError(404, "Usuario no encontrado");
     }
-    return user;
+    return {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    };
   },
   delete: async (id: string): Promise<void> => {
     const user = await UserModel.findByIdAndDelete(id);
