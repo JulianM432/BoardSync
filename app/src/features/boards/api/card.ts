@@ -14,6 +14,12 @@ export type UpdateCardInput = {
   assignedTo?: string | null;
 };
 
+export type MoveCardInput = {
+  columnId: string;
+  prevId: string | null;
+  nextId: string | null;
+};
+
 export const cardAPI = {
   getCards: async (boardId: string): Promise<CardDTO[]> => {
     const { data } = await apiClient.get(`/boards/${boardId}/cards`);
@@ -39,5 +45,16 @@ export const cardAPI = {
   },
   deleteCard: async (boardId: string, id: string): Promise<void> => {
     await apiClient.delete(`/boards/${boardId}/cards/${id}`);
+  },
+  moveCard: async (
+    boardId: string,
+    id: string,
+    input: MoveCardInput,
+  ): Promise<CardDTO> => {
+    const { data } = await apiClient.patch(
+      `/boards/${boardId}/cards/${id}/move`,
+      input,
+    );
+    return data;
   },
 };
