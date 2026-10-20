@@ -10,9 +10,15 @@ const red = "\x1b[31m";
 const magenta = "\x1b[35m";
 
 const getStatusColor = (status: number): string => {
-  if (status >= 500) return red;
-  if (status >= 400) return yellow;
-  if (status >= 300) return cyan;
+  if (status >= 500) {
+    return red;
+  }
+  if (status >= 400) {
+    return yellow;
+  }
+  if (status >= 300) {
+    return cyan;
+  }
   return green;
 };
 

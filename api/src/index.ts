@@ -15,4 +15,7 @@ const initApp = async () => {
   });
 };
 
-initApp();
+initApp().catch((error: unknown) => {
+  console.error("Error al iniciar el servidor:", error);
+  process.exit(1);
+});

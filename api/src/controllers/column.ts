@@ -4,10 +4,11 @@ import { AppError } from "../utils/AppError.js";
 import { requireUser } from "../utils/requireUser.js";
 
 function sendError(res: Response, error: unknown) {
-  if (error instanceof AppError)
+  if (error instanceof AppError) {
     return res
       .status(error.status)
       .json({ message: error.message, code: error.code });
+  }
   return res.status(500).json({ message: "Error interno" });
 }
 
