@@ -1,0 +1,14 @@
+name: kanban-e2e
+
+services:
+  mongo:
+    image: mongo:8.0.15
+    ports:
+      - "27018:27017"
+    tmpfs:
+      - /data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 2s
+      timeout: 5s
+      retries: 30

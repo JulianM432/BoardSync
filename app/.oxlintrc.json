@@ -46,6 +46,16 @@
         "typescript/no-unsafe-type-assertion": "off",
         "no-shadow": "off"
       }
+    },
+    {
+      "files": ["e2e/**", "playwright.config.ts"],
+      "env": {
+        "node": true
+      },
+      "rules": {
+        "react/rules-of-hooks": "off",
+        "no-empty-pattern": "off"
+      }
     }
   ]
 }
