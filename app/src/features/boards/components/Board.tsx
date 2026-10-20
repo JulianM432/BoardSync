@@ -8,8 +8,6 @@ type BoardProps = {
   cards: CardDTO[];
 };
 
-// Fractional indexing: las keys se comparan por orden lexicográfico
-// (code point). NO uses localeCompare: depende del locale y rompe el orden.
 const byCardPosition = (a: CardDTO, b: CardDTO) =>
   a.position < b.position ? -1 : a.position > b.position ? 1 : 0;
 
@@ -19,7 +17,6 @@ export const Board = ({ columns, cards }: BoardProps) => {
     [columns],
   );
 
-  // Una sola pasada O(n) en vez de cards.filter() por cada columna (O(n * m)).
   const cardsByColumn = useMemo(() => {
     const map = new Map<string, CardDTO[]>();
     for (const card of cards) {
@@ -37,7 +34,6 @@ export const Board = ({ columns, cards }: BoardProps) => {
   }, [cards]);
 
   return (
-    // h-full: el padre tiene que darle una altura (ver layout de la página).
     <div className="flex h-full items-start gap-4 overflow-x-auto p-4">
       {sortedColumns.map((column) => (
         <Column

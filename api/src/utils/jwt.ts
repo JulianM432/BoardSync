@@ -15,7 +15,6 @@ export const signToken = (user: AuthUser) =>
     algorithm: "HS256",
   });
 
-// Validamos el payload en runtime en vez de castearlo
 const tokenPayloadSchema = z.object({
   sub: z.string(),
   role: z.enum(ROLES),

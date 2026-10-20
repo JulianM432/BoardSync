@@ -13,7 +13,6 @@ export async function requireBoardRole(boardId: string, user: AuthUser) {
     throw new AppError(404, "Board not found");
   }
   const role = getBoardRole(board, user.id);
-  // 404 para no revelar la existencia del board
   if (!role) {
     throw new AppError(404, "Board not found");
   }

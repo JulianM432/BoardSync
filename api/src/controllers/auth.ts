@@ -11,7 +11,7 @@ export const AuthController = {
         httpOnly: true,
         secure: env.NODE_ENV === "production",
         sameSite: env.NODE_ENV === "production" ? "none" : "lax",
-        maxAge: 43200000, // 12 hours
+        maxAge: 43200000,
       });
       return res.status(200).json(response.user);
     } catch (error) {

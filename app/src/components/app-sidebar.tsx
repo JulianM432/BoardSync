@@ -74,7 +74,6 @@ export const AppSidebar = ({
 
       <SidebarFooter>
         <div className="flex items-center justify-between gap-2 px-2 py-1">
-          {/* min-w-0: sin esto el truncate de los hijos no funciona dentro de un flex */}
           <div className="flex min-w-0 flex-col">
             <span className="truncate text-sm font-medium">
               {user.username}

@@ -14,10 +14,9 @@ type CardProps = {
   title: string;
   description: string;
   createdBy: string;
-  createdAt: Date | string; // por JSON llega string
+  createdAt: Date | string;
 };
 
-// `||` y no `??`: la description default es "" y `??` no la atrapa.
 const parseText = (value?: string | null) => value || "-";
 
 const formatDate = (value: Date | string) => {
@@ -32,7 +31,6 @@ export const CardBoard = ({
   createdAt,
 }: CardProps) => {
   return (
-    // El ancho lo decide la Column, la card solo ocupa el 100%.
     <Card size="sm" className="w-full">
       <CardHeader>
         <CardTitle>{parseText(title)}</CardTitle>

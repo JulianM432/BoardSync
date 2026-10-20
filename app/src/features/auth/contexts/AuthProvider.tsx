@@ -22,7 +22,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setStatus("anonymous");
       }
     };
-    // `void`: checkUserStatus ya maneja sus errores
     void checkUserStatus();
   }, []);
 
@@ -35,9 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       await authAPI.logout();
-    } catch {
-      // Si falla el server, la sesión local se cierra igual
-    }
+    } catch {}
     setUser(null);
     setStatus("anonymous");
   };

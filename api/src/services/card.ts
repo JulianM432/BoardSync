@@ -14,7 +14,6 @@ import type {
 
 type UserRef = { _id: Types.ObjectId; username: string };
 
-// Tipos de los paths poblados por CARD_POPULATE, para `populate<T>()`
 type PopulatedCardPaths = {
   createdBy: UserRef;
   assignedTo: UserRef | null;
@@ -234,7 +233,6 @@ export const CardService = {
         .lean();
       lower = last?.position ?? null;
     }
-    // Anclas inconsistentes (estado stale, o duplicados por concurrencia por ej.)
     if (lower !== null && upper !== null && lower >= upper) {
       throw new AppError(409, "Stale position, refetch the board");
     }

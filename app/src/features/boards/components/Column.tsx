@@ -5,7 +5,7 @@ import { EllipsisVertical, Plus } from "lucide-react";
 
 type ColumnProps = {
   column: ColumnDTO;
-  cards: CardDTO[]; // ya vienen ordenadas por position
+  cards: CardDTO[];
 };
 
 export const Column = ({ column, cards }: ColumnProps) => {

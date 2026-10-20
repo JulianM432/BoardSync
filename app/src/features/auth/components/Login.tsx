@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "../../../components/ui/spinner";
 
 type LoginFormProps = {
-  // Debe manejar sus propios errores (se dispara con `void`)
   onSubmit: (input: LoginCredentials) => Promise<void>;
   isSubmitting?: boolean;
   error?: string | null;

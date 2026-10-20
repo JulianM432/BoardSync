@@ -1,4 +1,3 @@
-// CardForm.tsx
 import {
   useEffect,
   useRef,
@@ -17,7 +16,6 @@ export type CardFormValues = {
 type CardFormProps = {
   mode: "create" | "edit";
   initialValues?: CardFormValues;
-  // Debe lanzar (throw) si falla, así el form puede mostrar el error
   onSubmit: (values: CardFormValues) => Promise<void>;
   onCancel: () => void;
 };
@@ -41,7 +39,6 @@ export function CardForm({
     titleRef.current?.focus();
   }, []);
 
-  // Normalizamos igual que el server (trim: true en el schema)
   const trimmedTitle = title.trim();
   const trimmedDescription = description.trim();
 
@@ -52,7 +49,7 @@ export function CardForm({
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (isSubmitting) {
-      return; // evita doble submit (Enter + click)
+      return;
     }
 
     if (!trimmedTitle) {
@@ -78,7 +75,6 @@ export function CardForm({
       onCancel();
       return;
     }
-    // Enter en el textarea es salto de línea, así que Ctrl/Cmd+Enter envía
     if (
       e.key === "Enter" &&
       (e.ctrlKey || e.metaKey) &&

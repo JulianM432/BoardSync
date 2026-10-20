@@ -4,7 +4,6 @@ import type { SignOptions } from "jsonwebtoken";
 
 type ExpiresIn = NonNullable<SignOptions["expiresIn"]>;
 
-// Formato de la lib `ms` que usa jsonwebtoken: "30m", "12h", "7d"...
 const MS_FORMAT = /^\d+(\.\d+)?\s?(ms|s|m|h|d|w|y)?$/i;
 
 const envSchema = z.object({

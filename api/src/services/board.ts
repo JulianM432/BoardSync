@@ -16,7 +16,6 @@ import { requireBoardRole } from "../utils/requireBoardRole.js";
 
 type UserRef = { _id: Types.ObjectId; username: string };
 
-// Tipos de los paths poblados por BOARD_POPULATE, para `populate<T>()`
 type PopulatedBoardPaths = {
   ownerId: UserRef;
   members: { userId: UserRef; role: MemberRole }[];
