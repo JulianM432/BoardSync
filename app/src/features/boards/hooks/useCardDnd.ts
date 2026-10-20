@@ -67,11 +67,12 @@ export function useCardDnd({ boardId, cards, layout }: UseCardDndOptions) {
     }),
   );
 
-  const currentLayout = drag && drag.source === cards ? drag.layout : layout;
-  const activeCard =
-    drag?.activeId && drag.source === cards
-      ? (cards.find((card) => card._id === drag.activeId) ?? null)
-      : null;
+  const isDragging = Boolean(drag?.activeId);
+  const currentLayout =
+    drag && (isDragging || drag.source === cards) ? drag.layout : layout;
+  const activeCard = drag?.activeId
+    ? (cards.find((card) => card._id === drag.activeId) ?? null)
+    : null;
 
   const onDragStart = ({ active }: DragStartEvent) => {
     setDrag({ activeId: String(active.id), layout, source: cards });

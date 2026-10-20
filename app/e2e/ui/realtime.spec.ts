@@ -201,3 +201,42 @@ test.describe("seguridad del socket", () => {
     expect(viewerEvents).not.toContain("card:created");
   });
 });
+
+test.describe("drag & drop con cambios remotos", () => {
+  test("un cambio remoto durante el arrastre no lo interrumpe", async ({
+    liveBoardAs,
+    apiAs,
+    board,
+  }) => {
+    const editorBoard = await liveBoardAs("editor", board.id);
+    const { page } = editorBoard;
+    const draggedCopies = page.getByText("Tarea 1", { exact: true });
+
+    await editorBoard.startDrag("Tarea 1");
+    await editorBoard.moveMouseTo(
+      editorBoard.column("Hecho").getByRole("list"),
+    );
+    await expect(draggedCopies).toHaveCount(2);
+    await expect(editorBoard.cardTitles("Hecho")).toHaveText(["Tarea 1"]);
+
+    const refetched = page.waitForResponse(
+      (response) =>
+        response.url().endsWith("/cards") &&
+        response.request().method() === "GET",
+    );
+    await (
+      await apiAs("admin")
+    ).post(`boards/${board.id}/cards`, {
+      data: { title: "Remota", columnId: board.columns[1]._id },
+    });
+    await refetched;
+    await expect(draggedCopies).toHaveCount(2);
+    await expect(editorBoard.cardTitles("Hecho")).toHaveText(["Tarea 1"]);
+
+    const moved = editorBoard.waitForMove();
+    await page.mouse.up();
+    expect((await moved).ok()).toBe(true);
+    await expect(editorBoard.cardTitles("Hecho")).toHaveText(["Tarea 1"]);
+    await expect(editorBoard.cardTitles("En curso")).toHaveText(["Remota"]);
+  });
+});
