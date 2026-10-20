@@ -5,21 +5,21 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { AppSidebar, type BoardSummary } from "@/components/app-sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
 import { Board } from "@/features/boards/components/Board";
 import { boardApi } from "@/features/boards/api/board";
 import { columnAPI } from "@/features/boards/api/column";
 import { cardAPI } from "@/features/boards/api/card";
-import type { CardDTO, ColumnDTO } from "@/schemas/board";
+import type { BoardDTO, CardDTO, ColumnDTO } from "@/schemas/board";
 import type { User } from "@/schemas/auth";
 
 type HomeProps = {
-  onLogout: () => void;
+  onLogout: () => Promise<void>;
   user: User;
 };
 
 export const HomePage = ({ user, onLogout }: HomeProps) => {
-  const [boards, setBoards] = useState<BoardSummary[]>([]);
+  const [boards, setBoards] = useState<BoardDTO[]>([]);
   const [activeBoardId, setActiveBoardId] = useState<string | null>(null);
   const [columns, setColumns] = useState<ColumnDTO[]>([]);
   const [cards, setCards] = useState<CardDTO[]>([]);
@@ -59,18 +59,24 @@ export const HomePage = ({ user, onLogout }: HomeProps) => {
       cardAPI.getCards(activeBoardId),
     ])
       .then(([nextColumns, nextCards]) => {
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
         setColumns(nextColumns);
         setCards(nextCards);
       })
       .catch(() => {
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
         setColumns([]);
         setCards([]);
         setError("No se pudieron cargar las columnas y tarjetas del board.");
       })
       .finally(() => {
-        if (!cancelled) setLoadingBoard(false);
+        if (!cancelled) {
+          setLoadingBoard(false);
+        }
       });
 
     return () => {

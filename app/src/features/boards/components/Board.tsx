@@ -15,7 +15,7 @@ const byCardPosition = (a: CardDTO, b: CardDTO) =>
 
 export const Board = ({ columns, cards }: BoardProps) => {
   const sortedColumns = useMemo(
-    () => [...columns].sort((a, b) => a.position - b.position),
+    () => columns.toSorted((a, b) => a.position - b.position),
     [columns],
   );
 
@@ -24,10 +24,15 @@ export const Board = ({ columns, cards }: BoardProps) => {
     const map = new Map<string, CardDTO[]>();
     for (const card of cards) {
       const list = map.get(card.columnId);
-      if (list) list.push(card);
-      else map.set(card.columnId, [card]);
+      if (list) {
+        list.push(card);
+      } else {
+        map.set(card.columnId, [card]);
+      }
     }
-    for (const list of map.values()) list.sort(byCardPosition);
+    for (const list of map.values()) {
+      list.sort(byCardPosition);
+    }
     return map;
   }, [cards]);
 

@@ -11,20 +11,16 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import type { User } from "@/schemas/auth";
+import type { BoardDTO } from "@/schemas/board";
 import { LogOut, Plus } from "lucide-react";
 
-export type BoardSummary = {
-  _id: string;
-  name: string;
-};
-
 type AppSidebarProps = {
-  boards: BoardSummary[];
+  boards: BoardDTO[];
   activeBoardId: string | null;
   onSelectBoard: (boardId: string) => void;
   onCreateBoard: () => void;
   user: User;
-  onLogout: () => void;
+  onLogout: () => Promise<void>;
 };
 
 export const AppSidebar = ({
@@ -91,7 +87,7 @@ export const AppSidebar = ({
             size="icon-sm"
             variant="ghost"
             aria-label="Cerrar sesión"
-            onClick={onLogout}
+            onClick={() => void onLogout()}
           >
             <LogOut />
           </Button>

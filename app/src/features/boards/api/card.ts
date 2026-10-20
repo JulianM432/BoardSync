@@ -5,11 +5,13 @@ type CreateCardInput = {
   title: string;
   description?: string;
   columnId: string;
+  assignedTo?: string | null;
 };
 
 type UpdateCardInput = {
   title?: string;
   description?: string;
+  assignedTo?: string | null;
 };
 
 export const cardAPI = {
@@ -17,11 +19,18 @@ export const cardAPI = {
     const { data } = await apiClient.get(`/boards/${boardId}/cards`);
     return data;
   },
-  createCard: async (boardId: string, input: CreateCardInput) => {
+  createCard: async (
+    boardId: string,
+    input: CreateCardInput,
+  ): Promise<CardDTO> => {
     const { data } = await apiClient.post(`/boards/${boardId}/cards`, input);
     return data;
   },
-  updateCard: async (boardId: string, id: string, input: UpdateCardInput) => {
+  updateCard: async (
+    boardId: string,
+    id: string,
+    input: UpdateCardInput,
+  ): Promise<CardDTO> => {
     const { data } = await apiClient.patch(
       `/boards/${boardId}/cards/${id}`,
       input,

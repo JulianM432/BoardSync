@@ -46,7 +46,7 @@ export const Column = ({ column, cards }: ColumnProps) => {
               <CardBoard
                 title={card.title}
                 description={card.description}
-                createdBy={card.createdBy}
+                createdBy={card.createdBy.username}
                 createdAt={card.createdAt}
               />
             </li>
