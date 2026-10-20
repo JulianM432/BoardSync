@@ -1,10 +1,10 @@
 import { Types } from "mongoose";
-import { BoardModel } from "../models/board.js";
 import { CardModel } from "../models/card.js";
 import { ColumnModel } from "../models/column.js";
 import type { AuthUser } from "../utils/jwt.js";
 import { AppError } from "../utils/AppError.js";
-import { can, getBoardRole } from "../config/board-permissions.js";
+import { requireBoardRole } from "../utils/requireBoardRole.js";
+import { can } from "../config/board-permissions.js";
 import type {
   CreateColumnInput,
   UpdateColumnInput,
@@ -15,17 +15,17 @@ async function requireColumnBoardAccess(
   user: AuthUser,
   permission: "board:read" | "column:manage",
 ) {
-  if (!Types.ObjectId.isValid(boardId))
-    throw new AppError(400, "boardId invalid");
-  const board = await BoardModel.findById(boardId).select("ownerId members");
-  if (!board) throw new AppError(404, "Board not found");
-  if (!can(getBoardRole(board, user.id), permission))
+  const { board, role } = await requireBoardRole(boardId, user);
+  if (!can(role, permission)) {
     throw new AppError(403, "Forbidden");
+  }
   return board;
 }
 
 function validateColumnId(id: string) {
-  if (!Types.ObjectId.isValid(id)) throw new AppError(400, "id invalid");
+  if (!Types.ObjectId.isValid(id)) {
+    throw new AppError(400, "id invalid");
+  }
 }
 
 export const ColumnService = {
@@ -39,7 +39,9 @@ export const ColumnService = {
     await requireColumnBoardAccess(boardId, user, "board:read");
     validateColumnId(id);
     const column = await ColumnModel.findOne({ _id: id, boardId }).lean();
-    if (!column) throw new AppError(404, "Column not found");
+    if (!column) {
+      throw new AppError(404, "Column not found");
+    }
     return column;
   },
   createColumn: async (
@@ -64,7 +66,9 @@ export const ColumnService = {
       { $set: input },
       { returnDocument: "after", runValidators: true },
     );
-    if (!column) throw new AppError(404, "Column not found");
+    if (!column) {
+      throw new AppError(404, "Column not found");
+    }
     return column;
   },
   deleteColumn: async (
@@ -75,7 +79,9 @@ export const ColumnService = {
     await requireColumnBoardAccess(boardId, user, "column:manage");
     validateColumnId(id);
     const column = await ColumnModel.findOneAndDelete({ _id: id, boardId });
-    if (!column) throw new AppError(404, "Column not found");
+    if (!column) {
+      throw new AppError(404, "Column not found");
+    }
     await CardModel.deleteMany({ columnId: id, boardId });
     await ColumnModel.updateMany(
       { boardId, position: { $gt: column.position } },
