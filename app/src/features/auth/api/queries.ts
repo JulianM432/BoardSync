@@ -17,3 +17,11 @@ export const meQueryOptions = queryOptions({
   staleTime: Infinity,
   retry: false,
 });
+
+export const usersQueries = {
+  list: () =>
+    queryOptions({
+      queryKey: ["users", "list"],
+      queryFn: () => usersAPI.getAll(),
+    }),
+};

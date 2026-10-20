@@ -1,16 +1,14 @@
 import { apiClient } from "@/lib/axios-config";
-import type { BoardDTO } from "@/schemas/board";
+import type { BoardDTO, BoardMemberDTO } from "@/schemas/board";
 
-type Role = "owner" | "editor" | "viewer";
-
-type Member = {
+export type MemberInput = {
   userId: string;
-  role: Role;
+  role: BoardMemberDTO["role"];
 };
 
-type BoardInput = {
+export type BoardInput = {
   name: string;
-  members: Member[];
+  members: MemberInput[];
 };
 
 export const boardApi = {

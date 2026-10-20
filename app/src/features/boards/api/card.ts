@@ -1,14 +1,14 @@
 import { apiClient } from "@/lib/axios-config";
 import type { CardDTO } from "@/schemas/board";
 
-type CreateCardInput = {
+export type CreateCardInput = {
   title: string;
   description?: string;
   columnId: string;
   assignedTo?: string | null;
 };
 
-type UpdateCardInput = {
+export type UpdateCardInput = {
   title?: string;
   description?: string;
   assignedTo?: string | null;
@@ -37,8 +37,7 @@ export const cardAPI = {
     );
     return data;
   },
-  deleteCard: async (boardId: string, id: string) => {
-    const { data } = await apiClient.delete(`/boards/${boardId}/cards/${id}`);
-    return data;
+  deleteCard: async (boardId: string, id: string): Promise<void> => {
+    await apiClient.delete(`/boards/${boardId}/cards/${id}`);
   },
 };
