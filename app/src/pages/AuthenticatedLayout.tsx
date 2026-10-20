@@ -34,7 +34,7 @@ export const AuthenticatedLayout = () => {
           onOpenChange={setIsCreateBoardOpen}
         />
       )}
-      <SidebarInset className="h-dvh min-h-0">
+      <SidebarInset className="h-dvh min-h-0 min-w-0">
         <Outlet />
       </SidebarInset>
     </SidebarProvider>

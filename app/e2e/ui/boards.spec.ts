@@ -124,6 +124,22 @@ test.describe("boards", () => {
     await expect(shell.boardDialog).toBeVisible();
   });
 
+  test("con muchas columnas el header sigue en pantalla", async ({
+    pageAs,
+    apiAs,
+    board,
+  }) => {
+    const admin = await apiAs("admin");
+    for (const name of ["Revisión", "QA", "Deploy"]) {
+      await admin.post(`boards/${board.id}/columns`, { data: { name } });
+    }
+    const boardPage = new BoardPage(
+      await pageAs("admin", `/boards/${board.id}`),
+    );
+    await expect(boardPage.column("Deploy")).toBeAttached();
+    await expect(boardPage.boardMenuButton(board.name)).toBeInViewport();
+  });
+
   test("el admin crea y borra un board", async ({ pageAs }) => {
     const page = await pageAs("admin");
     const shell = new AppShell(page);
