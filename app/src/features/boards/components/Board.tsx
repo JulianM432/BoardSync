@@ -1,9 +1,15 @@
 import { useMemo, useState } from "react";
+import { closestCorners, DndContext, DragOverlay } from "@dnd-kit/core";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import type { CardDTO, ColumnDTO, UserRef } from "@/schemas/board";
 import { Column } from "@/features/boards/components/Column";
 import { ColumnFormDialog } from "@/features/boards/components/ColumnFormDialog";
+import {
+  useCardDnd,
+  type ColumnLayout,
+} from "@/features/boards/hooks/useCardDnd";
+import { CardBoard } from "@/features/cards/components/CardBoard";
 
 type BoardProps = {
   boardId: string;
@@ -31,53 +37,75 @@ export const Board = ({
     [columns],
   );
 
-  const cardsByColumn = useMemo(() => {
-    const map = new Map<string, CardDTO[]>();
-    for (const card of cards) {
-      const list = map.get(card.columnId);
-      if (list) {
-        list.push(card);
-      } else {
-        map.set(card.columnId, [card]);
-      }
+  const cardsById = useMemo(
+    () => new Map(cards.map((card) => [card._id, card])),
+    [cards],
+  );
+
+  const layout = useMemo(() => {
+    const result: ColumnLayout = {};
+    for (const column of columns) {
+      result[column._id] = [];
     }
-    for (const list of map.values()) {
-      list.sort(byCardPosition);
+    for (const card of cards.toSorted(byCardPosition)) {
+      result[card.columnId]?.push(card._id);
     }
-    return map;
-  }, [cards]);
+    return result;
+  }, [columns, cards]);
+
+  const dnd = useCardDnd({ boardId, cards, layout });
+
+  const cardsOf = (columnId: string) =>
+    (dnd.layout[columnId] ?? []).flatMap((id) => {
+      const card = cardsById.get(id);
+      return card ? [card] : [];
+    });
 
   return (
-    <div className="flex h-full items-start gap-4 overflow-x-auto p-4">
-      {sortedColumns.map((column) => (
-        <Column
-          key={column._id}
-          boardId={boardId}
-          column={column}
-          assignees={assignees}
-          cards={cardsByColumn.get(column._id) ?? []}
-          canManageColumn={canManageColumns}
-          canWriteCards={canWriteCards}
-        />
-      ))}
-
-      {canManageColumns && (
-        <>
-          <Button
-            variant="outline"
-            className="w-72 shrink-0 justify-start"
-            onClick={() => setIsCreateColumnOpen(true)}
-          >
-            <Plus />
-            Agregar columna
-          </Button>
-          <ColumnFormDialog
-            open={isCreateColumnOpen}
-            onOpenChange={setIsCreateColumnOpen}
+    <DndContext
+      sensors={dnd.sensors}
+      collisionDetection={closestCorners}
+      {...dnd.handlers}
+    >
+      <div className="flex h-full items-start gap-4 overflow-x-auto p-4">
+        {sortedColumns.map((column) => (
+          <Column
+            key={column._id}
             boardId={boardId}
+            column={column}
+            assignees={assignees}
+            cards={cardsOf(column._id)}
+            canManageColumn={canManageColumns}
+            canWriteCards={canWriteCards}
           />
-        </>
-      )}
-    </div>
+        ))}
+
+        {canManageColumns && (
+          <>
+            <Button
+              variant="outline"
+              className="w-72 shrink-0 justify-start"
+              onClick={() => setIsCreateColumnOpen(true)}
+            >
+              <Plus />
+              Agregar columna
+            </Button>
+            <ColumnFormDialog
+              open={isCreateColumnOpen}
+              onOpenChange={setIsCreateColumnOpen}
+              boardId={boardId}
+            />
+          </>
+        )}
+      </div>
+      <DragOverlay>
+        {dnd.activeCard && (
+          <CardBoard
+            card={dnd.activeCard}
+            className="rotate-2 cursor-grabbing shadow-lg"
+          />
+        )}
+      </DragOverlay>
+    </DndContext>
   );
 };

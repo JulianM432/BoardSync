@@ -60,6 +60,13 @@ export class BoardPage {
     });
   }
 
+  draggableCard(title: string) {
+    return this.page.getByRole("button", {
+      name: `Tarjeta ${title}`,
+      exact: true,
+    });
+  }
+
   cardMenuButton(title: string) {
     return this.page.getByRole("button", { name: `Opciones de ${title}` });
   }
@@ -139,5 +146,49 @@ export class BoardPage {
   async deleteBoard(name: string) {
     await this.chooseMenuItem(this.boardMenuButton(name), "Eliminar");
     await this.confirmDeleteButton.click();
+  }
+
+  async dragCard(title: string, target: Locator) {
+    await this.startDrag(title);
+    await this.moveMouseTo(target);
+    await this.page.mouse.up();
+  }
+
+  async startDrag(title: string) {
+    const from = await this.boxOf(this.draggableCard(title));
+    await this.page.mouse.move(from.x, from.y);
+    await this.page.mouse.down();
+    await this.page.mouse.move(from.x + 10, from.y + 10, { steps: 5 });
+  }
+
+  async moveMouseTo(target: Locator) {
+    const to = await this.boxOf(target);
+    await this.page.mouse.move(to.x, to.y, { steps: 15 });
+  }
+
+  get dndAnnouncements() {
+    return this.page.locator("[id^=DndLiveRegion]");
+  }
+
+  async waitForKeyboardSensor() {
+    await this.page.evaluate(
+      () => new Promise((resolve) => setTimeout(resolve, 0)),
+    );
+  }
+
+  waitForMove() {
+    return this.page.waitForResponse(
+      (response) =>
+        response.url().endsWith("/move") &&
+        response.request().method() === "PATCH",
+    );
+  }
+
+  private async boxOf(locator: Locator) {
+    const box = await locator.boundingBox();
+    if (!box) {
+      throw new Error("No se pudo medir el elemento");
+    }
+    return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
   }
 }

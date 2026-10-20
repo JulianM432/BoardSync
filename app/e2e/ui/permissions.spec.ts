@@ -36,6 +36,9 @@ test.describe("la UI muestra solo las acciones del rol", () => {
       0,
     );
     await expect(page.getByRole("button", { name: /^Agregar/ })).toHaveCount(0);
+    await expect(page.locator("[aria-roledescription=sortable]")).toHaveCount(
+      0,
+    );
   });
 
   test("solo un admin ve el botón de nuevo board", async ({ pageAs }) => {

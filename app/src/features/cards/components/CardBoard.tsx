@@ -8,13 +8,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 import type { CardDTO } from "@/schemas/board";
+
+type CardActions = {
+  onEdit: () => void;
+  onDelete: () => void;
+};
 
 type CardProps = {
   card: CardDTO;
-  canEdit: boolean;
-  onEdit: () => void;
-  onDelete: () => void;
+  actions?: CardActions;
+  className?: string;
 };
 
 const parseText = (value?: string | null) => value || "-";
@@ -24,20 +29,20 @@ const formatDate = (value: string) => {
   return Number.isNaN(date.getTime()) ? "-" : date.toLocaleDateString("es-AR");
 };
 
-export const CardBoard = ({ card, canEdit, onEdit, onDelete }: CardProps) => {
+export const CardBoard = ({ card, actions, className }: CardProps) => {
   const wasEdited = card.updatedAt !== card.createdAt;
 
   return (
-    <Card size="sm" className="w-full">
+    <Card size="sm" className={cn("w-full", className)}>
       <CardHeader>
         <CardTitle>{parseText(card.title)}</CardTitle>
         <CardDescription>{parseText(card.description)}</CardDescription>
-        {canEdit && (
+        {actions && (
           <CardAction>
             <ActionsMenu
               label={`Opciones de ${card.title}`}
-              onEdit={onEdit}
-              onDelete={onDelete}
+              onEdit={actions.onEdit}
+              onDelete={actions.onDelete}
             />
           </CardAction>
         )}

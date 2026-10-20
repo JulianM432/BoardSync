@@ -1,4 +1,9 @@
 import { useState } from "react";
+import { useDroppable } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { Plus } from "lucide-react";
 import { ActionsMenu } from "@/components/actions-menu";
 import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
@@ -8,6 +13,7 @@ import { useDeleteCard } from "@/features/boards/hooks/useCardMutations";
 import { useDeleteColumn } from "@/features/boards/hooks/useColumnMutations";
 import { CardBoard } from "@/features/cards/components/CardBoard";
 import { CardFormDialog } from "@/features/cards/components/CardFormDialog";
+import { SortableCard } from "@/features/cards/components/SortableCard";
 import type { CardDTO, ColumnDTO, UserRef } from "@/schemas/board";
 
 type ColumnProps = {
@@ -43,6 +49,10 @@ export const Column = ({
   });
   const deleteColumn = useDeleteColumn(boardId);
   const deleteCard = useDeleteCard(boardId);
+  const { setNodeRef: setDropRef } = useDroppable({
+    id: column._id,
+    disabled: !canWriteCards,
+  });
 
   const handleDeleteCard = () => {
     if (!deleteCardDialog.card) {
@@ -98,24 +108,44 @@ export const Column = ({
         )}
       </header>
 
-      <ul className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-2 py-2">
-        {cards.length === 0 ? (
-          <li className="rounded-lg border border-dashed px-3 py-6 text-center text-sm text-muted-foreground">
-            No hay tarjetas en esta columna
-          </li>
-        ) : (
-          cards.map((card) => (
-            <li key={card._id}>
-              <CardBoard
-                card={card}
-                canEdit={canWriteCards}
-                onEdit={() => setCardDialog({ open: true, card })}
-                onDelete={() => setDeleteCardDialog({ open: true, card })}
-              />
+      <SortableContext
+        id={column._id}
+        items={cards.map((card) => card._id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <ul
+          ref={setDropRef}
+          className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-2 py-2"
+        >
+          {cards.length === 0 ? (
+            <li className="rounded-lg border border-dashed px-3 py-6 text-center text-sm text-muted-foreground">
+              No hay tarjetas en esta columna
             </li>
-          ))
-        )}
-      </ul>
+          ) : (
+            cards.map((card) => (
+              <SortableCard
+                key={card._id}
+                id={card._id}
+                title={card.title}
+                disabled={!canWriteCards}
+              >
+                <CardBoard
+                  card={card}
+                  actions={
+                    canWriteCards
+                      ? {
+                          onEdit: () => setCardDialog({ open: true, card }),
+                          onDelete: () =>
+                            setDeleteCardDialog({ open: true, card }),
+                        }
+                      : undefined
+                  }
+                />
+              </SortableCard>
+            ))
+          )}
+        </ul>
+      </SortableContext>
 
       {canWriteCards && (
         <>
