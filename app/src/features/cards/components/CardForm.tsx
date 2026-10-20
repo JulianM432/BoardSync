@@ -51,7 +51,9 @@ export function CardForm({
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (isSubmitting) return; // evita doble submit (Enter + click)
+    if (isSubmitting) {
+      return; // evita doble submit (Enter + click)
+    }
 
     if (!trimmedTitle) {
       setTitleError("El título es obligatorio");
@@ -91,7 +93,7 @@ export function CardForm({
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={(e) => void handleSubmit(e)}
       onKeyDown={handleKeyDown}
       noValidate
       className="card-form"
@@ -104,7 +106,9 @@ export function CardForm({
           value={title}
           onChange={(e) => {
             setTitle(e.target.value);
-            if (titleError) setTitleError(null);
+            if (titleError) {
+              setTitleError(null);
+            }
           }}
           maxLength={TITLE_MAX}
           disabled={isSubmitting}
