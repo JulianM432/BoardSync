@@ -1,4 +1,4 @@
-import type { BoardDTO, BoardMemberDTO } from "@/schemas/board";
+import type { BoardDTO, BoardMemberDTO, UserRef } from "@/schemas/board";
 
 export type BoardRole = "owner" | BoardMemberDTO["role"];
 
@@ -21,11 +21,18 @@ export function can(role: BoardRole | null, permission: BoardPermission) {
   return role !== null && permissions[permission].includes(role);
 }
 
-export function getBoardRole(board: BoardDTO, userId: string): BoardRole | null {
+export function getBoardRole(
+  board: BoardDTO,
+  userId: string,
+): BoardRole | null {
   if (board.ownerId._id === userId) {
     return "owner";
   }
   return (
     board.members.find((member) => member.userId._id === userId)?.role ?? null
   );
+}
+
+export function getBoardUsers(board: BoardDTO): UserRef[] {
+  return [board.ownerId, ...board.members.map((member) => member.userId)];
 }

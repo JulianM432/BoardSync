@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { ActionsMenu } from "@/components/actions-menu";
 import {
   Card,
   CardAction,
@@ -8,51 +8,56 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { EllipsisVertical } from "lucide-react";
+import type { CardDTO } from "@/schemas/board";
 
 type CardProps = {
-  title: string;
-  description: string;
-  createdBy: string;
-  createdAt: Date | string;
+  card: CardDTO;
   canEdit: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
 };
 
 const parseText = (value?: string | null) => value || "-";
 
-const formatDate = (value: Date | string) => {
+const formatDate = (value: string) => {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? "-" : date.toLocaleDateString("es-AR");
 };
 
-export const CardBoard = ({
-  title,
-  description,
-  createdBy,
-  createdAt,
-  canEdit,
-}: CardProps) => {
+export const CardBoard = ({ card, canEdit, onEdit, onDelete }: CardProps) => {
+  const wasEdited = card.updatedAt !== card.createdAt;
+
   return (
     <Card size="sm" className="w-full">
       <CardHeader>
-        <CardTitle>{parseText(title)}</CardTitle>
-        <CardDescription>{parseText(description)}</CardDescription>
+        <CardTitle>{parseText(card.title)}</CardTitle>
+        <CardDescription>{parseText(card.description)}</CardDescription>
         {canEdit && (
           <CardAction>
-            <Button
-              size="icon-sm"
-              variant="ghost"
-              aria-label={`Opciones de ${title}`}
-            >
-              <EllipsisVertical />
-            </Button>
+            <ActionsMenu
+              label={`Opciones de ${card.title}`}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
           </CardAction>
         )}
       </CardHeader>
       <Separator />
-      <CardFooter className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-        <p className="truncate">Creado por: {parseText(createdBy)}</p>
-        <p className="shrink-0">{formatDate(createdAt)}</p>
+      <CardFooter className="flex flex-col items-stretch gap-1 text-xs text-muted-foreground">
+        <div className="flex items-center justify-between gap-2">
+          <p className="truncate">
+            Asignada a: {parseText(card.assignedTo?.username)}
+          </p>
+          <p className="shrink-0">{formatDate(card.createdAt)}</p>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <p className="truncate">
+            Creada por: {parseText(card.createdBy.username)}
+          </p>
+          {wasEdited && (
+            <p className="shrink-0">Editada {formatDate(card.updatedAt)}</p>
+          )}
+        </div>
       </CardFooter>
     </Card>
   );

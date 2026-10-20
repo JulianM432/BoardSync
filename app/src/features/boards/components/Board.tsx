@@ -1,12 +1,15 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import type { CardDTO, ColumnDTO } from "@/schemas/board";
+import type { CardDTO, ColumnDTO, UserRef } from "@/schemas/board";
 import { Column } from "@/features/boards/components/Column";
+import { ColumnFormDialog } from "@/features/boards/components/ColumnFormDialog";
 
 type BoardProps = {
+  boardId: string;
   columns: ColumnDTO[];
   cards: CardDTO[];
+  assignees: UserRef[];
   canManageColumns: boolean;
   canWriteCards: boolean;
 };
@@ -15,11 +18,14 @@ const byCardPosition = (a: CardDTO, b: CardDTO) =>
   a.position < b.position ? -1 : a.position > b.position ? 1 : 0;
 
 export const Board = ({
+  boardId,
   columns,
   cards,
+  assignees,
   canManageColumns,
   canWriteCards,
 }: BoardProps) => {
+  const [isCreateColumnOpen, setIsCreateColumnOpen] = useState(false);
   const sortedColumns = useMemo(
     () => columns.toSorted((a, b) => a.position - b.position),
     [columns],
@@ -46,7 +52,9 @@ export const Board = ({
       {sortedColumns.map((column) => (
         <Column
           key={column._id}
+          boardId={boardId}
           column={column}
+          assignees={assignees}
           cards={cardsByColumn.get(column._id) ?? []}
           canManageColumn={canManageColumns}
           canWriteCards={canWriteCards}
@@ -54,10 +62,21 @@ export const Board = ({
       ))}
 
       {canManageColumns && (
-        <Button variant="outline" className="w-72 shrink-0 justify-start">
-          <Plus />
-          Agregar columna
-        </Button>
+        <>
+          <Button
+            variant="outline"
+            className="w-72 shrink-0 justify-start"
+            onClick={() => setIsCreateColumnOpen(true)}
+          >
+            <Plus />
+            Agregar columna
+          </Button>
+          <ColumnFormDialog
+            open={isCreateColumnOpen}
+            onOpenChange={setIsCreateColumnOpen}
+            boardId={boardId}
+          />
+        </>
       )}
     </div>
   );
