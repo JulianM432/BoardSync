@@ -1,5 +1,6 @@
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
-import { getApiErrorStatus } from "@/lib/axios-config";
+import { toast } from "sonner";
+import { getApiErrorMessage, getApiErrorStatus } from "@/lib/axios-config";
 
 const MAX_RETRIES = 2;
 
@@ -17,7 +18,16 @@ export function createQueryClient(onUnauthorized: () => void) {
 
   return new QueryClient({
     queryCache: new QueryCache({ onError: handleError }),
-    mutationCache: new MutationCache({ onError: handleError }),
+    mutationCache: new MutationCache({
+      onError: (error) => {
+        handleError(error);
+        if (getApiErrorStatus(error) !== 401) {
+          toast.error(
+            getApiErrorMessage(error, "No se pudo guardar el cambio"),
+          );
+        }
+      },
+    }),
     defaultOptions: {
       queries: {
         staleTime: 30_000,
