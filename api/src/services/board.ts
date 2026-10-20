@@ -43,6 +43,13 @@ async function validateMembers(
   }
 }
 
+function getUserIds(
+  ownerId: Types.ObjectId | string,
+  members: { userId: Types.ObjectId | string }[] = [],
+) {
+  return [ownerId.toString(), ...members.map((m) => m.userId.toString())];
+}
+
 function handleDuplicateName(error: unknown): never {
   if (error instanceof mongo.MongoServerError && error.code === 11000) {
     throw new AppError(409, "Ya existe este nombre");
@@ -55,7 +62,10 @@ export const BoardService = {
     await validateMembers(input.ownerId, input.members);
     try {
       const board = await BoardModel.create(input);
-      return await board.populate<PopulatedBoardPaths>(BOARD_POPULATE);
+      return {
+        board: await board.populate<PopulatedBoardPaths>(BOARD_POPULATE),
+        userIds: getUserIds(input.ownerId, input.members),
+      };
     } catch (error) {
       return handleDuplicateName(error);
     }
@@ -84,8 +94,8 @@ export const BoardService = {
     }
     return board;
   },
-  deleteBoard: async (id: string, user: AuthUser): Promise<void> => {
-    const { role } = await requireBoardRole(id, user);
+  deleteBoard: async (id: string, user: AuthUser): Promise<string[]> => {
+    const { board, role } = await requireBoardRole(id, user);
     if (!can(role, "board:manage")) {
       throw new AppError(403, "Forbidden");
     }
@@ -94,6 +104,7 @@ export const BoardService = {
       ColumnModel.deleteMany({ boardId: id }),
       BoardModel.deleteOne({ _id: id }),
     ]);
+    return getUserIds(board.ownerId, board.members);
   },
   updateBoard: async (id: string, input: UpdateBoardInput, user: AuthUser) => {
     const { board: current, role } = await requireBoardRole(id, user);
@@ -110,7 +121,20 @@ export const BoardService = {
       if (!board) {
         throw new AppError(404, "Board not found");
       }
-      return board;
+      const userIds = getUserIds(
+        current.ownerId,
+        input.members ?? current.members,
+      );
+      return {
+        board,
+        userIds,
+        affectedUserIds: [
+          ...new Set([
+            ...getUserIds(current.ownerId, current.members),
+            ...userIds,
+          ]),
+        ],
+      };
     } catch (error) {
       return handleDuplicateName(error);
     }

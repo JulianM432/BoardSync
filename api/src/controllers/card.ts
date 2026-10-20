@@ -4,6 +4,7 @@ import { CardService } from "../services/card.js";
 import { AppError } from "../utils/AppError.js";
 import { cardQuerySchema } from "../schemas/card.js";
 import { requireUser } from "../utils/requireUser.js";
+import { emitToBoard } from "../sockets/emitter.js";
 
 function sendError(res: Response, error: unknown) {
   if (error instanceof AppError) {
@@ -55,6 +56,7 @@ export const CardController = {
         req.body,
         requireUser(req),
       );
+      emitToBoard(req, req.params.boardId, "card:created");
       return res.status(201).json(response);
     } catch (error) {
       return sendError(res, error);
@@ -71,6 +73,7 @@ export const CardController = {
         req.body,
         requireUser(req),
       );
+      emitToBoard(req, req.params.boardId, "card:updated");
       return res.status(200).json(response);
     } catch (error) {
       return sendError(res, error);
@@ -86,12 +89,16 @@ export const CardController = {
         req.params.id,
         requireUser(req),
       );
+      emitToBoard(req, req.params.boardId, "card:deleted");
       return res.status(204).end();
     } catch (error) {
       return sendError(res, error);
     }
   },
-  moveCard: async (req: Request<{ boardId: string; id: string }>, res: Response) => {
+  moveCard: async (
+    req: Request<{ boardId: string; id: string }>,
+    res: Response,
+  ) => {
     try {
       const response = await CardService.moveCard(
         req.params.boardId,
@@ -99,6 +106,7 @@ export const CardController = {
         req.body,
         requireUser(req),
       );
+      emitToBoard(req, req.params.boardId, "card:moved");
       return res.status(200).json(response);
     } catch (error) {
       return sendError(res, error);

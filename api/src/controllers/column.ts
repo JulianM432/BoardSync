@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { ColumnService } from "../services/column.js";
 import { AppError } from "../utils/AppError.js";
 import { requireUser } from "../utils/requireUser.js";
+import { emitToBoard } from "../sockets/emitter.js";
 
 function sendError(res: Response, error: unknown) {
   if (error instanceof AppError) {
@@ -46,6 +47,7 @@ export const ColumnController = {
         req.body,
         requireUser(req),
       );
+      emitToBoard(req, req.params.boardId, "column:created");
       return res.status(201).json(response);
     } catch (error) {
       return sendError(res, error);
@@ -62,6 +64,7 @@ export const ColumnController = {
         req.body,
         requireUser(req),
       );
+      emitToBoard(req, req.params.boardId, "column:updated");
       return res.status(200).json(response);
     } catch (error) {
       return sendError(res, error);
@@ -77,6 +80,7 @@ export const ColumnController = {
         req.params.id,
         requireUser(req),
       );
+      emitToBoard(req, req.params.boardId, "column:deleted");
       return res.status(204).end();
     } catch (error) {
       return sendError(res, error);
