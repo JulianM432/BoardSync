@@ -11,6 +11,7 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useMoveCard } from "@/features/boards/hooks/useCardMutations";
+import { socket } from "@/lib/socket";
 import { getMoveAnchors, isSameAnchors } from "@/features/cards/move";
 import type { CardDTO } from "@/schemas/board";
 
@@ -74,8 +75,13 @@ export function useCardDnd({ boardId, cards, layout }: UseCardDndOptions) {
     ? (cards.find((card) => card._id === drag.activeId) ?? null)
     : null;
 
+  const broadcastDrag = (cardId: string | null) => {
+    socket.emit("card:drag", { boardId, cardId });
+  };
+
   const onDragStart = ({ active }: DragStartEvent) => {
     setDrag({ activeId: String(active.id), layout, source: cards });
+    broadcastDrag(String(active.id));
   };
 
   const onDragOver = ({ active, over }: DragOverEvent) => {
@@ -112,6 +118,7 @@ export function useCardDnd({ boardId, cards, layout }: UseCardDndOptions) {
   };
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
+    broadcastDrag(null);
     const activeId = String(active.id);
     const card = cards.find((candidate) => candidate._id === activeId);
     const columnId = drag ? findColumn(drag.layout, activeId) : undefined;
@@ -146,6 +153,7 @@ export function useCardDnd({ boardId, cards, layout }: UseCardDndOptions) {
   };
 
   const onDragCancel = () => {
+    broadcastDrag(null);
     setDrag(null);
   };
 

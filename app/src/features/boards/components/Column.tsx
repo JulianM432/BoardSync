@@ -13,7 +13,10 @@ import { useDeleteCard } from "@/features/boards/hooks/useCardMutations";
 import { useDeleteColumn } from "@/features/boards/hooks/useColumnMutations";
 import { CardBoard } from "@/features/cards/components/CardBoard";
 import { CardFormDialog } from "@/features/cards/components/CardFormDialog";
-import { SortableCard } from "@/features/cards/components/SortableCard";
+import {
+  SortableCard,
+  type CardMover,
+} from "@/features/cards/components/SortableCard";
 import type { CardDTO, ColumnDTO, UserRef } from "@/schemas/board";
 
 type ColumnProps = {
@@ -23,6 +26,7 @@ type ColumnProps = {
   assignees: UserRef[];
   canManageColumn: boolean;
   canWriteCards: boolean;
+  movers: Map<string, CardMover>;
 };
 
 type CardDialogState = {
@@ -37,6 +41,7 @@ export const Column = ({
   assignees,
   canManageColumn,
   canWriteCards,
+  movers,
 }: ColumnProps) => {
   const headingId = `column-${column._id}`;
   const [isRenameOpen, setIsRenameOpen] = useState(false);
@@ -128,6 +133,7 @@ export const Column = ({
                 id={card._id}
                 title={card.title}
                 disabled={!canWriteCards}
+                movedBy={movers.get(card._id)}
               >
                 <CardBoard
                   card={card}
