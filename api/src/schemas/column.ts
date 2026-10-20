@@ -1,8 +1,5 @@
 import { z } from "zod";
-import { Types } from "mongoose";
-
-const objectId = (field: string) =>
-  z.string().refine(Types.ObjectId.isValid, `${field} invalid`);
+import { objectId } from "./common.js";
 
 export const createColumnSchema = z.object({
   name: z.string().trim().min(1).max(200),

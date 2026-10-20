@@ -43,7 +43,10 @@ export const BoardController = {
   },
   getBoard: async (req: Request<{ id: string }>, res: Response) => {
     try {
-      const board = await BoardService.getBoard(req.params.id);
+      const board = await BoardService.getBoard(
+        req.params.id,
+        requireUser(req),
+      );
       return res.status(200).json(board);
     } catch (error) {
       if (error instanceof AppError) {
@@ -57,7 +60,11 @@ export const BoardController = {
 
   updateBoard: async (req: Request<{ id: string }>, res: Response) => {
     try {
-      const board = await BoardService.updateBoard(req.params.id, req.body);
+      const board = await BoardService.updateBoard(
+        req.params.id,
+        req.body,
+        requireUser(req),
+      );
       return res.status(200).json(board);
     } catch (error) {
       if (error instanceof AppError) {
@@ -70,7 +77,7 @@ export const BoardController = {
   },
   deleteBoard: async (req: Request<{ id: string }>, res: Response) => {
     try {
-      await BoardService.deleteBoard(req.params.id);
+      await BoardService.deleteBoard(req.params.id, requireUser(req));
       return res.status(204).json({ message: "Board deleted" });
     } catch (error) {
       if (error instanceof AppError) {
