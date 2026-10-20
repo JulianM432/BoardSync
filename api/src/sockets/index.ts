@@ -4,7 +4,15 @@ import { env } from "../config/env.js";
 import { verifyToken } from "../utils/jwt.js";
 import { requireBoardRole } from "../utils/requireBoardRole.js";
 import { AppError } from "../utils/AppError.js";
-import { boardRoom, setIo, userRoom } from "./emitter.js";
+import { UserModel } from "../models/user.js";
+import {
+  announceLeave,
+  boardRoom,
+  broadcastPresence,
+  setIo,
+  userRoom,
+} from "./emitter.js";
+import { registerPresenceHandlers } from "./presence.js";
 import type {
   ClientToServerEvents,
   ServerToClientEvents,
@@ -39,14 +47,24 @@ export const initSockets = (httpServer: HttpServer) => {
     if (!token) {
       return next(new Error("No token provided"));
     }
+    let user;
     try {
-      const user = verifyToken(token);
-      socket.data.userId = user.id;
-      socket.data.role = user.role;
-      next();
+      user = verifyToken(token);
     } catch {
-      next(new Error("Invalid token"));
+      return next(new Error("Invalid token"));
     }
+    UserModel.findById(user.id)
+      .select("username")
+      .then((account) => {
+        if (!account) {
+          return next(new Error("User not found"));
+        }
+        socket.data.userId = user.id;
+        socket.data.username = account.username;
+        socket.data.role = user.role;
+        next();
+      })
+      .catch(() => next(new Error("User not found")));
   });
 
   io.on("connection", (socket) => {
@@ -65,6 +83,7 @@ export const initSockets = (httpServer: HttpServer) => {
         });
         await socket.join(boardRoom(boardId));
         reply({ ok: true });
+        await broadcastPresence(boardId);
       } catch (error) {
         reply({
           ok: false,
@@ -74,10 +93,13 @@ export const initSockets = (httpServer: HttpServer) => {
     });
 
     socket.on("board:leave", (boardId) => {
-      if (typeof boardId === "string") {
+      if (typeof boardId === "string" && socket.rooms.has(boardRoom(boardId))) {
         void socket.leave(boardRoom(boardId));
+        announceLeave(boardId, socket.id);
       }
     });
+
+    registerPresenceHandlers(socket);
   });
 
   setIo(io);

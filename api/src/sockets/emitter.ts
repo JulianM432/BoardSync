@@ -2,12 +2,13 @@ import type { Request } from "express";
 import type { Server } from "socket.io";
 import type {
   BoardEventName,
+  PresenceUser,
   ClientToServerEvents,
   ServerToClientEvents,
   SocketData,
 } from "./events.js";
 
-type AppServer = Server<
+export type AppServer = Server<
   ClientToServerEvents,
   ServerToClientEvents,
   Record<string, never>,
@@ -53,6 +54,33 @@ export async function removeNonMembers(boardId: string, userIds: string[]) {
   for (const socket of sockets) {
     if (!allowed.has(socket.data.userId)) {
       socket.leave(boardRoom(boardId));
+      announceLeave(boardId, socket.id);
     }
   }
+}
+
+export async function broadcastPresence(boardId: string) {
+  if (!io) {
+    return;
+  }
+  const sockets = await io.in(boardRoom(boardId)).fetchSockets();
+  const users = new Map<string, PresenceUser>();
+  for (const socket of sockets) {
+    users.set(socket.data.userId, {
+      userId: socket.data.userId,
+      username: socket.data.username,
+    });
+  }
+  io.to(boardRoom(boardId)).emit("presence:update", {
+    boardId,
+    users: [...users.values()],
+  });
+}
+
+export function announceLeave(boardId: string, socketId: string) {
+  if (!io) {
+    return;
+  }
+  io.to(boardRoom(boardId)).emit("peer:left", { boardId, socketId });
+  void broadcastPresence(boardId);
 }
