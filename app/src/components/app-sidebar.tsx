@@ -1,3 +1,4 @@
+import { Link, useParams } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -16,34 +17,34 @@ import { LogOut, Plus } from "lucide-react";
 
 type AppSidebarProps = {
   boards: BoardDTO[];
-  activeBoardId: string | null;
-  onSelectBoard: (boardId: string) => void;
-  onCreateBoard: () => void;
   user: User;
-  onLogout: () => Promise<void>;
+  onLogout: () => void;
+  onCreateBoard?: () => void;
 };
 
 export const AppSidebar = ({
   boards,
-  activeBoardId,
-  onSelectBoard,
-  onCreateBoard,
   user,
   onLogout,
+  onCreateBoard,
 }: AppSidebarProps) => {
+  const { boardId: activeBoardId } = useParams({ strict: false });
+
   return (
     <Sidebar>
       <SidebarHeader>
         <div className="flex items-center justify-between px-2">
           <h2 className="text-sm font-semibold">Boards</h2>
-          <Button
-            size="icon-sm"
-            variant="ghost"
-            aria-label="Nuevo board"
-            onClick={onCreateBoard}
-          >
-            <Plus />
-          </Button>
+          {onCreateBoard && (
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              aria-label="Nuevo board"
+              onClick={onCreateBoard}
+            >
+              <Plus />
+            </Button>
+          )}
         </div>
       </SidebarHeader>
 
@@ -52,7 +53,9 @@ export const AppSidebar = ({
           <SidebarGroupContent>
             {boards.length === 0 ? (
               <p className="px-2 text-sm text-muted-foreground">
-                Todavía no tenés boards. Creá el primero con el botón +.
+                {onCreateBoard
+                  ? "Todavía no tenés boards. Creá el primero con el botón +."
+                  : "Todavía no formás parte de ningún board."}
               </p>
             ) : (
               <SidebarMenu>
@@ -60,7 +63,12 @@ export const AppSidebar = ({
                   <SidebarMenuItem key={board._id}>
                     <SidebarMenuButton
                       isActive={board._id === activeBoardId}
-                      onClick={() => onSelectBoard(board._id)}
+                      render={
+                        <Link
+                          to="/boards/$boardId"
+                          params={{ boardId: board._id }}
+                        />
+                      }
                     >
                       <span className="truncate">{board.name}</span>
                     </SidebarMenuButton>
@@ -86,7 +94,7 @@ export const AppSidebar = ({
             size="icon-sm"
             variant="ghost"
             aria-label="Cerrar sesión"
-            onClick={() => void onLogout()}
+            onClick={onLogout}
           >
             <LogOut />
           </Button>

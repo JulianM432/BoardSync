@@ -15,6 +15,7 @@ type CardProps = {
   description: string;
   createdBy: string;
   createdAt: Date | string;
+  canEdit: boolean;
 };
 
 const parseText = (value?: string | null) => value || "-";
@@ -29,21 +30,24 @@ export const CardBoard = ({
   description,
   createdBy,
   createdAt,
+  canEdit,
 }: CardProps) => {
   return (
     <Card size="sm" className="w-full">
       <CardHeader>
         <CardTitle>{parseText(title)}</CardTitle>
         <CardDescription>{parseText(description)}</CardDescription>
-        <CardAction>
-          <Button
-            size="icon-sm"
-            variant="ghost"
-            aria-label={`Opciones de ${title}`}
-          >
-            <EllipsisVertical />
-          </Button>
-        </CardAction>
+        {canEdit && (
+          <CardAction>
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              aria-label={`Opciones de ${title}`}
+            >
+              <EllipsisVertical />
+            </Button>
+          </CardAction>
+        )}
       </CardHeader>
       <Separator />
       <CardFooter className="flex items-center justify-between gap-2 text-xs text-muted-foreground">

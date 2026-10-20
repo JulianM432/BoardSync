@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "../../../components/ui/spinner";
 
 type LoginFormProps = {
-  onSubmit: (input: LoginCredentials) => Promise<void>;
+  onSubmit: (input: LoginCredentials) => void;
   isSubmitting?: boolean;
   error?: string | null;
 };
@@ -30,7 +30,7 @@ export const Login = ({
 
   const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    void onSubmit(form);
+    onSubmit(form);
   };
 
   return (

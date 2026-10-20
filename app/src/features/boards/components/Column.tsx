@@ -6,11 +6,17 @@ import { EllipsisVertical, Plus } from "lucide-react";
 type ColumnProps = {
   column: ColumnDTO;
   cards: CardDTO[];
+  canManageColumn: boolean;
+  canWriteCards: boolean;
 };
 
-export const Column = ({ column, cards }: ColumnProps) => {
+export const Column = ({
+  column,
+  cards,
+  canManageColumn,
+  canWriteCards,
+}: ColumnProps) => {
   const headingId = `column-${column._id}`;
-  
 
   return (
     <section
@@ -26,13 +32,15 @@ export const Column = ({ column, cards }: ColumnProps) => {
             {cards.length}
           </span>
         </div>
-        <Button
-          size="icon-sm"
-          variant="ghost"
-          aria-label={`Opciones de la columna ${column.name}`}
-        >
-          <EllipsisVertical />
-        </Button>
+        {canManageColumn && (
+          <Button
+            size="icon-sm"
+            variant="ghost"
+            aria-label={`Opciones de la columna ${column.name}`}
+          >
+            <EllipsisVertical />
+          </Button>
+        )}
       </header>
 
       <ul className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-2 pb-2">
@@ -48,18 +56,21 @@ export const Column = ({ column, cards }: ColumnProps) => {
                 description={card.description}
                 createdBy={card.createdBy.username}
                 createdAt={card.createdAt}
+                canEdit={canWriteCards}
               />
             </li>
           ))
         )}
       </ul>
 
-      <div className="p-2">
-        <Button variant="ghost" size="sm" className="w-full justify-start">
-          <Plus />
-          Agregar tarjeta
-        </Button>
-      </div>
+      {canWriteCards && (
+        <div className="p-2">
+          <Button variant="ghost" size="sm" className="w-full justify-start">
+            <Plus />
+            Agregar tarjeta
+          </Button>
+        </div>
+      )}
     </section>
   );
 };
