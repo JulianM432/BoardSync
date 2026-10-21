@@ -53,9 +53,6 @@ importers:
       react-dom:
         specifier: 19.2.8
         version: 19.2.8(react@19.2.8)
-      shadcn:
-        specifier: 4.21.0
-        version: 4.21.0(typescript@7.0.2)
       socket.io-client:
         specifier: 4.8.4
         version: 4.8.4
@@ -114,6 +111,9 @@ importers:
       oxlint-tsgolint:
         specifier: 7.0.2004
         version: 7.0.2004
+      shadcn:
+        specifier: 4.21.0
+        version: 4.21.0(typescript@7.0.2)
       typescript:
         specifier: 7.0.2
         version: 7.0.2
