@@ -1,5 +1,6 @@
 .agents/
 .claude/
+docs/
 skills-lock.json
 diagrama.svg
 kanban-app.md
