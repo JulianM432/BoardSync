@@ -69,7 +69,7 @@ export function useBoardRealtime(boardId: string) {
         return;
       }
       queryClient
-        .fetchQuery({ ...boardQueries.detail(boardId), staleTime: 0 })
+        .query({ ...boardQueries.detail(boardId), staleTime: 0 })
         .catch(() => leaveBoard("Ya no tenés acceso a este board"));
     };
 

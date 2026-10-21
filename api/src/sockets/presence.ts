@@ -16,7 +16,7 @@ type AppSocket = Socket<
 
 const MAX_COORDINATE = 100_000;
 
-const coordinate = z.number().finite().min(0).max(MAX_COORDINATE);
+const coordinate = z.number().min(0).max(MAX_COORDINATE);
 
 const cursorSchema = z.object({
   boardId: z.string(),
