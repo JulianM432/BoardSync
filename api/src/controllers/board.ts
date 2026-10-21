@@ -4,14 +4,20 @@ import { AppError } from "../utils/AppError.js";
 import { getBoardsSchema } from "../schemas/board.js";
 import { ZodError } from "zod";
 import { requireUser } from "../utils/requireUser.js";
+import {
+  emitToBoard,
+  notifyBoardsChanged,
+  removeNonMembers,
+} from "../sockets/emitter.js";
 
 export const BoardController = {
   createBoard: async (req: Request, res: Response) => {
     try {
-      const board = await BoardService.createBoard({
+      const { board, userIds } = await BoardService.createBoard({
         ...req.body,
         ownerId: requireUser(req).id,
       });
+      notifyBoardsChanged(userIds);
       return res.status(201).json(board);
     } catch (error) {
       if (error instanceof AppError) {
@@ -60,11 +66,15 @@ export const BoardController = {
 
   updateBoard: async (req: Request<{ id: string }>, res: Response) => {
     try {
-      const board = await BoardService.updateBoard(
-        req.params.id,
-        req.body,
-        requireUser(req),
-      );
+      const { board, userIds, affectedUserIds } =
+        await BoardService.updateBoard(
+          req.params.id,
+          req.body,
+          requireUser(req),
+        );
+      emitToBoard(req, req.params.id, "board:updated");
+      await removeNonMembers(req.params.id, userIds);
+      notifyBoardsChanged(affectedUserIds);
       return res.status(200).json(board);
     } catch (error) {
       if (error instanceof AppError) {
@@ -77,8 +87,13 @@ export const BoardController = {
   },
   deleteBoard: async (req: Request<{ id: string }>, res: Response) => {
     try {
-      await BoardService.deleteBoard(req.params.id, requireUser(req));
-      return res.status(204).json({ message: "Board deleted" });
+      const userIds = await BoardService.deleteBoard(
+        req.params.id,
+        requireUser(req),
+      );
+      emitToBoard(req, req.params.id, "board:deleted");
+      notifyBoardsChanged(userIds);
+      return res.status(204).end();
     } catch (error) {
       if (error instanceof AppError) {
         return res

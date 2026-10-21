@@ -19,9 +19,12 @@ export function createQueryClient(onUnauthorized: () => void) {
   return new QueryClient({
     queryCache: new QueryCache({ onError: handleError }),
     mutationCache: new MutationCache({
-      onError: (error) => {
+      onError: (error, _variables, _context, mutation) => {
         handleError(error);
-        if (getApiErrorStatus(error) !== 401) {
+        if (
+          getApiErrorStatus(error) !== 401 &&
+          mutation.meta?.silentError !== true
+        ) {
           toast.error(
             getApiErrorMessage(error, "No se pudo guardar el cambio"),
           );

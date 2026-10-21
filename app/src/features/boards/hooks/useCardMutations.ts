@@ -6,6 +6,8 @@ import {
   type UpdateCardInput,
 } from "@/features/boards/api/card";
 import { boardQueries } from "@/features/boards/api/queries";
+import { applyOptimisticMove, type CardMove } from "@/features/cards/move";
+import { getApiErrorMessage, getApiErrorStatus } from "@/lib/axios-config";
 
 export function useCreateCard(boardId: string) {
   const queryClient = useQueryClient();
@@ -46,6 +48,38 @@ export function useDeleteCard(boardId: string) {
       await queryClient.invalidateQueries({
         queryKey: boardQueries.cards(boardId).queryKey,
       });
+    },
+  });
+}
+
+export function useMoveCard(boardId: string) {
+  const queryClient = useQueryClient();
+  const { queryKey } = boardQueries.cards(boardId);
+
+  return useMutation({
+    mutationFn: ({ id, ...input }: CardMove) =>
+      cardAPI.moveCard(boardId, id, input),
+    meta: { silentError: true },
+    onMutate: async (move) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData(queryKey);
+      queryClient.setQueryData(queryKey, (cards) =>
+        cards ? applyOptimisticMove(cards, move) : cards,
+      );
+      return { previous };
+    },
+    onError: (error, _move, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(queryKey, context.previous);
+      }
+      if (getApiErrorStatus(error) === 409) {
+        toast.error("La tarjeta cambió de lugar, se recargó el board");
+      } else if (getApiErrorStatus(error) !== 401) {
+        toast.error(getApiErrorMessage(error, "No se pudo mover la tarjeta"));
+      }
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey });
     },
   });
 }

@@ -1,9 +1,16 @@
 import axios, { isAxiosError } from "axios";
-
+import { socket } from "@/lib/socket";
 
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
+});
+
+apiClient.interceptors.request.use((config) => {
+  if (socket.id) {
+    config.headers.set("x-socket-id", socket.id);
+  }
+  return config;
 });
 
 export function getApiErrorMessage(
