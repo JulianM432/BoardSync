@@ -3,7 +3,6 @@ import { getRouteApi } from "@tanstack/react-router";
 import { PageHeader } from "@/components/page-header";
 import { boardQueries } from "@/features/boards/api/queries";
 import { Board } from "@/features/boards/components/Board";
-import { BoardActions } from "@/features/boards/components/BoardActions";
 import { PresenceAvatars } from "@/features/boards/components/PresenceAvatars";
 import { RoleBadge } from "@/features/boards/components/RoleBadge";
 import { useBoardPresence } from "@/features/boards/hooks/useBoardPresence";
@@ -33,9 +32,8 @@ export const BoardPage = () => {
     <>
       <PageHeader title={board.name}>
         {role && <RoleBadge role={role} />}
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto">
           <PresenceAvatars users={presence.users} currentUserId={user.id} />
-          {can("board:manage") && <BoardActions board={board} />}
         </div>
       </PageHeader>
       <div className="min-h-0 flex-1">

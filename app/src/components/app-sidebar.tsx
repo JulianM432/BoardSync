@@ -8,9 +8,12 @@ import {
   SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { BoardActions } from "@/features/boards/components/BoardActions";
+import { can, getBoardRole } from "@/features/boards/permissions";
 import type { User } from "@/schemas/auth";
 import type { BoardDTO } from "@/schemas/board";
 import { LogOut, Plus } from "lucide-react";
@@ -72,6 +75,12 @@ export const AppSidebar = ({
                     >
                       <span className="truncate">{board.name}</span>
                     </SidebarMenuButton>
+                    {can(getBoardRole(board, user.id), "board:manage") && (
+                      <BoardActions
+                        board={board}
+                        trigger={<SidebarMenuAction showOnHover />}
+                      />
+                    )}
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>

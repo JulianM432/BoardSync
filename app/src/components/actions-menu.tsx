@@ -1,3 +1,4 @@
+import type { ReactElement } from "react";
 import { EllipsisVertical, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +13,7 @@ type ActionsMenuProps = {
   editLabel?: string;
   onEdit: () => void;
   onDelete: () => void;
+  trigger?: ReactElement;
 };
 
 export const ActionsMenu = ({
@@ -19,11 +21,13 @@ export const ActionsMenu = ({
   editLabel = "Editar",
   onEdit,
   onDelete,
+  trigger = <Button size="icon-sm" variant="ghost" />,
 }: ActionsMenuProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={<Button size="icon-sm" variant="ghost" aria-label={label} />}
+        render={trigger}
+        aria-label={label}
       >
         <EllipsisVertical />
       </DropdownMenuTrigger>

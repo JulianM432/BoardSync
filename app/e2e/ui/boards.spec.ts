@@ -137,7 +137,7 @@ test.describe("boards", () => {
       await pageAs("admin", `/boards/${board.id}`),
     );
     await expect(boardPage.column("Deploy")).toBeAttached();
-    await expect(boardPage.boardMenuButton(board.name)).toBeInViewport();
+    await expect(boardPage.heading).toBeInViewport();
   });
 
   test("el admin crea y borra un board", async ({ pageAs }) => {

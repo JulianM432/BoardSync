@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { boardApi, type BoardInput } from "@/features/boards/api/board";
 import { boardQueries } from "@/features/boards/api/queries";
@@ -36,12 +36,15 @@ export function useUpdateBoard(boardId: string) {
 export function useDeleteBoard(boardId: string) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { boardId: activeBoardId } = useParams({ strict: false });
 
   return useMutation({
     mutationFn: () => boardApi.deleteBoard(boardId),
     onSuccess: async () => {
       toast.success("Board eliminado");
-      await navigate({ to: "/" });
+      if (boardId === activeBoardId) {
+        await navigate({ to: "/" });
+      }
       queryClient.removeQueries({
         queryKey: boardQueries.detail(boardId).queryKey,
       });
