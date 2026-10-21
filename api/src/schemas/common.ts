@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { Types } from "mongoose";
+import { isObjectIdOrHexString } from "mongoose";
 
 export const objectId = (field: string) =>
   z
     .string()
-    .refine((value) => Types.ObjectId.isValid(value), `${field} invalid`);
+    .refine((value) => isObjectIdOrHexString(value), `${field} invalid`);

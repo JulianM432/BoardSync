@@ -64,7 +64,7 @@ export const SortableCard = ({
         ...remoteStyle,
       }}
       className={cn(
-        "relative cursor-grab touch-none rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+        "relative cursor-grab touch-none rounded-xl outline-hidden focus-visible:ring-3 focus-visible:ring-ring/50",
         isDragging && "opacity-40",
       )}
       {...attributes}

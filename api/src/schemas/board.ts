@@ -25,17 +25,17 @@ export const createBoardSchema = z
   })
   .strict()
   .refine((data) => uniqueMembers(data.members), {
-    message: "Miembros duplicados",
+    error: "Miembros duplicados",
   });
 
 export const updateBoardSchema = baseBoardSchema
   .partial()
   .strict()
   .refine((data) => Object.keys(data).length > 0, {
-    message: "Debes enviar al menos un campo",
+    error: "Debes enviar al menos un campo",
   })
   .refine((data) => uniqueMembers(data.members), {
-    message: "Miembros duplicados",
+    error: "Miembros duplicados",
   });
 
 export const getBoardsSchema = z.object({

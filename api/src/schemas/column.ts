@@ -12,7 +12,7 @@ export const updateColumnSchema = z
   })
   .strict()
   .refine((data) => Object.keys(data).length > 0, {
-    message: "Debes enviar al menos un campo",
+    error: "Debes enviar al menos un campo",
   });
 
 export const columnParamsSchema = z.object({

@@ -46,7 +46,7 @@ export const UsersController = {
   delete: async (req: Request<{ id: string }>, res: Response) => {
     try {
       await UsersService.delete(req.params.id);
-      return res.status(204).json({ message: "Usuario eliminado" });
+      return res.status(204).end();
     } catch (error) {
       if (error instanceof AppError) {
         return res

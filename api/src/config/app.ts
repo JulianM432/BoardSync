@@ -3,7 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { env } from "./env.js";
 import router from "../routes/index.js";
-import { middlewares } from "../middlewares/index.js";
+import { errorHandler, middlewares } from "../middlewares/index.js";
 
 export const createApp = (): Express => {
   const app = express();
@@ -13,6 +13,7 @@ export const createApp = (): Express => {
   app.use(middlewares);
 
   app.use("/api", router);
+  app.use(errorHandler);
 
   return app;
 };
