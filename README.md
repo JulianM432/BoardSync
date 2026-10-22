@@ -4,6 +4,8 @@
 
 Tablero kanban colaborativo con roles por board (owner, editor y viewer), drag & drop de tarjetas y cambios en tiempo real.
 
+![Varios usuarios en el mismo board: cursores en vivo, una tarjeta arrastrada por otro usuario y movimientos sincronizados](.github/assets/demo.gif)
+
 - `api/`: Express 5, Mongoose, Socket.IO y Zod.
 - `app/`: React 19, Vite, TanStack Query y Router, shadcn/ui y dnd-kit.
 
